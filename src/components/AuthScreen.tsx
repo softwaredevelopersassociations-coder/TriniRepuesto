@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard, MapPin } from 'lucide-react';
+import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard, MapPin, Eye, EyeOff } from 'lucide-react';
 import type { UserRole } from '@/types';
 import LocationPicker from './LocationPicker';
 import AuthBackdrop from './AuthBackdrop';
@@ -13,6 +13,7 @@ export default function AuthScreen() {
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [carnet, setCarnet] = useState('');
@@ -252,14 +253,23 @@ export default function AuthScreen() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
-                  className="input pl-10"
-                  type="password"
+                  className="input pl-10 pr-11"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
+                </button>
               </div>
             </div>
 
