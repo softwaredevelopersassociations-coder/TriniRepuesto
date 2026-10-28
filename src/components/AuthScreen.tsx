@@ -104,6 +104,10 @@ export default function AuthScreen() {
             </div>
             <MapPin className="ml-auto h-5 w-5 shrink-0 text-orange-300" aria-hidden="true" />
           </div>
+          <p className="mt-7 text-xs text-slate-400">
+            Desarrollado por{' '}
+            <span className="font-semibold text-slate-200">Software Developers Associations</span>
+          </p>
         </div>
       </section>
 

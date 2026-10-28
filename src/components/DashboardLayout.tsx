@@ -259,6 +259,11 @@ export default function DashboardLayout({
           </div>
 
           {children}
+
+          <footer className="mt-10 border-t border-slate-800/80 pt-4 pb-2 text-center text-xs text-slate-500">
+            Desarrollado por{' '}
+            <span className="font-semibold text-slate-300">Software Developers Associations</span>
+          </footer>
         </div>
       </main>
     </div>
