@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard } from 'lucide-react';
+import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard, MapPin } from 'lucide-react';
 import type { UserRole } from '@/types';
 import LocationPicker from './LocationPicker';
 import AuthBackdrop from './AuthBackdrop';
 import LoadingAnimation from './LoadingAnimation';
+import trinidadAerial from '@/img/Trinidad_Bolivia_2.jpg';
 
 type Mode = 'signin' | 'signup';
 
@@ -94,6 +95,14 @@ export default function AuthScreen() {
               <Store className="w-8 h-8 text-cyan-400 mb-2" />
               <p className="text-white text-sm font-medium">Compra y vende repuestos</p>
             </div>
+          </div>
+          <div className="auth-city-card mt-5" aria-label="Trinidad, Beni, Bolivia">
+            <img src={trinidadAerial} alt="Vista aérea de Trinidad, Bolivia" loading="lazy" />
+            <div className="min-w-0 text-left">
+              <p className="truncate text-sm font-semibold text-white">Trinidad, Beni</p>
+              <p className="mt-0.5 text-xs text-slate-300">Una comunidad sobre ruedas</p>
+            </div>
+            <MapPin className="ml-auto h-5 w-5 shrink-0 text-orange-300" aria-hidden="true" />
           </div>
         </div>
       </section>
