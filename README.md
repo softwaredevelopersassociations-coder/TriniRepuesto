@@ -1,4 +1,4 @@
-# Sistemas de ventas de repuestos
+# TriniRepuesto
 
 Aplicación web para mantenimiento de motocicletas y venta de repuestos. Incluye perfiles de usuario y proveedor, búsqueda de motos y repuestos, mensajería, ubicación de tiendas y gestión de productos.
 
