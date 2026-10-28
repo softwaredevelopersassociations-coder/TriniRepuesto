@@ -88,8 +88,19 @@ export default function DashboardLayout({
     const channel = supabase
       .channel(`unread-badge:${profile.id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-        const message = payload.new as { sender_id: string };
-        if (message.sender_id !== profile.id) scheduleUnreadRefresh();
+        const message = payload.new as { id: string; sender_id: string };
+        if (message.sender_id !== profile.id) {
+          void supabase
+            .from('messages')
+            .update({ delivered_at: new Date().toISOString() })
+            .eq('id', message.id)
+            .eq('sender_id', message.sender_id)
+            .is('delivered_at', null)
+            .then(({ error: deliveryError }) => {
+              if (deliveryError) console.warn('No se pudo confirmar la entrega del mensaje.', deliveryError);
+            });
+          scheduleUnreadRefresh();
+        }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
         const message = payload.new as { sender_id: string; read_at: string | null };

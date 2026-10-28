@@ -54,14 +54,26 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
     if (!profile || markReadTimer.current) return;
     markReadTimer.current = setTimeout(() => {
       markReadTimer.current = null;
+      const readAt = new Date().toISOString();
       supabase
         .from('messages')
-        .update({ read_at: new Date().toISOString() })
+        .update({ delivered_at: readAt, read_at: readAt })
         .eq('conversation_id', conversationId)
         .neq('sender_id', profile.id)
         .is('read_at', null)
-        .then(({ error: readError }) => {
-          if (readError) setError('No se pudo actualizar el estado de lectura.');
+        .then(async ({ error: receiptError }) => {
+          if (receiptError && /delivered_at/i.test(receiptError.message)) {
+            // Keep read receipts working while the Supabase migration is pending.
+            const { error: readError } = await supabase
+              .from('messages')
+              .update({ read_at: readAt })
+              .eq('conversation_id', conversationId)
+              .neq('sender_id', profile.id)
+              .is('read_at', null);
+            if (readError) setError('No se pudo actualizar el estado de lectura.');
+            return;
+          }
+          if (receiptError) setError('No se pudo actualizar el estado de lectura.');
         });
     }, 180);
   };
@@ -113,7 +125,9 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
         },
         (payload) => {
           const updated = payload.new as Message;
-          setMessages((current) => current.map((message) => message.id === updated.id ? { ...message, read_at: updated.read_at } : message));
+          setMessages((current) => current.map((message) => message.id === updated.id
+            ? { ...message, delivered_at: updated.delivered_at, read_at: updated.read_at }
+            : message));
         }
       )
       .subscribe();
@@ -172,6 +186,7 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
       conversation_id: conversationId,
       sender_id: profile.id,
       content,
+      delivered_at: null,
       read_at: null,
       created_at: new Date().toISOString(),
     };
@@ -284,6 +299,14 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
           )}
           {messages.map((msg) => {
             const isMe = msg.sender_id === profile?.id;
+            const isPending = msg.id.startsWith('pending-');
+            const statusLabel = isPending
+              ? 'Enviando'
+              : msg.read_at
+                ? 'Leído'
+                : msg.delivered_at
+                  ? 'Entregado'
+                  : 'Enviado';
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div
@@ -300,8 +323,15 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
                     }`}
                   >
                     {fmt(msg.created_at)}
-                    {isMe && msg.id.startsWith('pending-') && <span className="ml-1">Enviando…</span>}
-                    {isMe && msg.read_at && <span className="ml-1">✓✓</span>}
+                    {isMe && (
+                      <span
+                        className={`ml-1 ${msg.read_at ? 'text-green-300' : 'text-slate-400'}`}
+                        title={statusLabel}
+                        aria-label={`Estado del mensaje: ${statusLabel}`}
+                      >
+                        {isPending ? 'Enviando…' : msg.delivered_at || msg.read_at ? '✓✓' : '✓'}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>

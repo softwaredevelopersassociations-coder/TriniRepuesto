@@ -111,6 +111,7 @@ export type Message = {
   conversation_id: string;
   sender_id: string;
   content: string;
+  delivered_at: string | null;
   read_at: string | null;
   created_at: string;
 };
