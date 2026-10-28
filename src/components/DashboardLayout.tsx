@@ -152,7 +152,7 @@ export default function DashboardLayout({
             <div className="w-9 h-9 bg-orange-500 rounded-lg flex items-center justify-center">
               <Bike className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold text-white">TriniShop</span>
+            <span className="text-lg font-bold text-white">TriniRepuesto</span>
           </div>
         </div>
 
@@ -251,7 +251,7 @@ export default function DashboardLayout({
               <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
                 <Bike className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">MotoCare</span>
+              <span className="text-lg font-bold text-white">TriniRepuesto</span>
             </div>
             <button type="button" onClick={signOut} className="btn-ghost p-2">
               <LogOut className="w-5 h-5" />

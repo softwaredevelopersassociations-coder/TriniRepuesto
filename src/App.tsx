@@ -9,7 +9,8 @@ import MarketplaceView from '@/components/MarketplaceView';
 import MyPartsView from '@/components/MyPartsView';
 import MessagesView from '@/components/MessagesView';
 import ProfileView from '@/components/ProfileView';
-import { Bike } from 'lucide-react';
+import AuthBackdrop from '@/components/AuthBackdrop';
+import LoadingAnimation from '@/components/LoadingAnimation';
 
 function AppContent() {
   const { session, profile, loading } = useAuth();
@@ -17,12 +18,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center animate-pulse-ring">
-            <Bike className="w-7 h-7 text-white" />
-          </div>
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <div className="auth-loading-screen relative isolate min-h-screen flex items-center justify-center overflow-hidden bg-slate-950 p-6">
+        <AuthBackdrop />
+        <div className="relative z-10 rounded-3xl border border-white/10 bg-slate-950/75 px-10 py-8 shadow-2xl backdrop-blur-2xl">
+          <LoadingAnimation label="Preparando tu espacio…" />
         </div>
       </div>
     );

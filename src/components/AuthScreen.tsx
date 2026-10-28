@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Loader2, Bike, IdCard } from 'lucide-react';
+import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard } from 'lucide-react';
 import type { UserRole } from '@/types';
 import LocationPicker from './LocationPicker';
+import AuthBackdrop from './AuthBackdrop';
+import LoadingAnimation from './LoadingAnimation';
 
 type Mode = 'signin' | 'signup';
 
@@ -70,45 +72,46 @@ export default function AuthScreen() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-950">
       {/* Left panel — branding */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-orange-900/40 flex flex-col justify-center items-center p-8 lg:p-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-orange-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-80 h-80 bg-cyan-500 rounded-full blur-3xl" />
-        </div>
+      <section className="auth-brand-panel relative isolate lg:w-1/2 min-h-[360px] lg:min-h-screen flex flex-col justify-center items-center p-8 lg:p-16 overflow-hidden">
+        <AuthBackdrop />
         <div className="relative z-10 max-w-md text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-orange-500 rounded-2xl mb-6 shadow-2xl shadow-orange-500/30">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-orange-500/90 rounded-2xl mb-6 shadow-2xl shadow-orange-500/30 ring-1 ring-white/20 backdrop-blur-sm">
             <Bike className="w-11 h-11 text-white" strokeWidth={2.2} />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">MotoCare</h1>
-          <p className="text-slate-300 text-lg mb-8">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-orange-200/90">Desde Trinidad, Bolivia</p>
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">TriniRepuesto</h1>
+          <p className="text-slate-200 text-lg mb-8 drop-shadow">
             Mantenimiento y repuestos para motocicletas en un solo lugar
           </p>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-slate-700">
+            <div className="bg-slate-950/50 backdrop-blur-xl rounded-xl p-4 border border-white/15 shadow-xl">
               <Wrench className="w-8 h-8 text-orange-400 mb-2" />
-              <p className="text-slate-200 text-sm font-medium">Gestiona el mantenimiento de tus motos</p>
+              <p className="text-white text-sm font-medium">Gestiona el mantenimiento de tus motos</p>
             </div>
-            <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-slate-700">
+            <div className="bg-slate-950/50 backdrop-blur-xl rounded-xl p-4 border border-white/15 shadow-xl">
               <Store className="w-8 h-8 text-cyan-400 mb-2" />
-              <p className="text-slate-200 text-sm font-medium">Compra y vende repuestos</p>
+              <p className="text-white text-sm font-medium">Compra y vende repuestos</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Right panel — form */}
-      <div className="lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-slate-950 overflow-y-auto">
-        <div className="w-full max-w-md py-4">
+      <section className="auth-form-panel relative isolate lg:w-1/2 flex items-center justify-center p-5 sm:p-8 lg:p-12 overflow-y-auto">
+        <AuthBackdrop />
+        <div className="relative z-10 w-full max-w-md py-7 sm:p-8 rounded-3xl border border-white/10 bg-slate-950/75 backdrop-blur-2xl shadow-2xl shadow-slate-950/50">
+          <div className="mb-7">
           <h2 className="text-2xl font-bold text-white mb-1">
             {mode === 'signin' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
           </h2>
           <p className="text-slate-400 text-sm mb-6">
             {mode === 'signin'
               ? 'Inicia sesión para acceder a tu panel'
-              : 'Elige tu rol y empieza a usar MotoCare'}
+              : 'Elige tu rol y empieza a usar TriniRepuesto'}
           </p>
+          </div>
 
           {error && (
             <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400 animate-fade-in">
@@ -164,7 +167,7 @@ export default function AuthScreen() {
                 </div>
 
                 <div>
-                  <label className="label">¿Cómo vas a usar MotoCare?</label>
+                  <label className="label">¿Cómo vas a usar TriniRepuesto?</label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
                       { val: 'mechanic', label: 'Mantenimiento', icon: Wrench },
@@ -247,9 +250,12 @@ export default function AuthScreen() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full">
+            <button type="submit" disabled={loading} className="btn-primary w-full min-h-11">
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <LoadingAnimation
+                  compact
+                  label={mode === 'signin' ? 'Iniciando sesión…' : 'Creando cuenta…'}
+                />
               ) : (
                 <>
                   {mode === 'signin' ? 'Iniciar sesión' : 'Crear cuenta'}
@@ -272,7 +278,7 @@ export default function AuthScreen() {
             </button>
           </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
