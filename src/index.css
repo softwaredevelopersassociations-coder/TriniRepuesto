@@ -6,17 +6,17 @@
   :root {
     --color-bg: 15 23 42;
     --color-surface: 30 41 59;
-    --color-surface-2: 51 65 85;
-    --color-border: 71 85 105;
+    --color-surface-2: 30 41 59;
+    --color-border: 30 41 59;
     --color-primary: 249 115 22;
-    --color-primary-dark: 194 65 12;
-    --color-primary-light: 251 146 60;
-    --color-accent: 6 182 212;
+    --color-primary-dark: 234 88 12;
+    --color-primary-light: 249 115 22;
+    --color-accent: 22 163 74;
     --color-text: 248 250 252;
-    --color-text-muted: 148 163 184;
-    --color-success: 34 197 94;
-    --color-warning: 234 179 8;
-    --color-error: 239 68 68;
+    --color-text-muted: 226 232 240;
+    --color-success: 21 128 61;
+    --color-warning: 234 88 12;
+    --color-error: 234 88 12;
   }
 
   body {
@@ -26,7 +26,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(71 85 105) transparent;
+    scrollbar-color: rgb(30 41 59) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -35,7 +35,7 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: rgb(71 85 105);
+    background: rgb(30 41 59);
     border-radius: 4px;
   }
 }
@@ -101,7 +101,7 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  background: #0f172a;
+  background: #0F172A;
 }
 .auth-backdrop__photo {
   position: absolute;
@@ -117,7 +117,7 @@
 .auth-backdrop__shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.78));
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.78));
 }
 .auth-backdrop__glow {
   position: absolute;
@@ -125,10 +125,10 @@
   opacity: 0.58;
   background:
     radial-gradient(ellipse at 15% 18%, rgba(249, 115, 22, 0.32), transparent 42%),
-    radial-gradient(ellipse at 85% 82%, rgba(6, 182, 212, 0.24), transparent 40%);
+    radial-gradient(ellipse at 85% 82%, rgba(22, 163, 74, 0.24), transparent 40%);
 }
 .auth-form-panel .auth-backdrop__shade {
-  background: linear-gradient(145deg, rgba(2, 6, 23, 0.72), rgba(2, 6, 23, 0.88));
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.88));
 }
 .auth-form-panel .auth-backdrop__photo {
   filter: saturate(0.78);
@@ -143,10 +143,10 @@
   margin-left: auto;
   overflow: hidden;
   padding: 0.45rem 0.9rem 0.45rem 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(248, 250, 252, 0.16);
   border-radius: 1rem;
-  background: rgba(2, 6, 23, 0.54);
-  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.24);
+  background: rgba(15, 23, 42, 0.54);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
   backdrop-filter: blur(14px);
   animation: auth-city-float 5s ease-in-out infinite;
 }
@@ -177,8 +177,8 @@
   position: absolute;
   width: 72px;
   height: 72px;
-  border: 1px solid rgba(251, 146, 60, 0.52);
-  border-right-color: rgba(6, 182, 212, 0.72);
+  border: 1px solid rgba(249, 115, 22, 0.52);
+  border-right-color: rgba(22, 163, 74, 0.72);
   border-bottom-color: transparent;
   border-radius: 50%;
   animation: auth-loader-orbit 3.2s linear infinite;
@@ -187,7 +187,7 @@
   z-index: 1;
   width: 54px;
   height: 54px;
-  color: rgb(251 146 60);
+  color: rgb(249 115 22);
   filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.42));
   animation: auth-loader-bob 1.25s ease-in-out infinite;
 }
@@ -198,8 +198,8 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgb(103 232 249);
-  box-shadow: 0 0 15px rgba(103, 232, 249, 0.9);
+  background: rgb(22 163 74);
+  box-shadow: 0 0 15px rgba(22, 163, 74, 0.9);
   animation: auth-loader-spark 1.6s ease-in-out infinite;
 }
 .auth-loader__road {
@@ -209,18 +209,18 @@
   height: 2px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.28);
+  background: rgba(226, 232, 240, 0.28);
 }
 .auth-loader__road span {
   display: block;
   width: 31px;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgb(249 115 22), rgb(103 232 249));
+  background: linear-gradient(90deg, rgb(249 115 22), rgb(22 163 74));
   animation: auth-loader-road 1s ease-in-out infinite;
 }
 .auth-loader__label {
-  color: rgb(203 213 225);
+  color: rgb(226 232 240);
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -253,7 +253,7 @@
   display: none;
 }
 .auth-loader--compact .auth-loader__label {
-  color: white;
+  color: #F8FAFC;
   font-size: 0.875rem;
   font-weight: 600;
 }
