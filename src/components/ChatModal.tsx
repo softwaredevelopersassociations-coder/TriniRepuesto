@@ -45,8 +45,11 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<Message[]>([]);
+  const realtimeConnectedRef = useRef(false);
   const shouldScrollToBottom = useRef(true);
   const markReadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -98,6 +101,10 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
 
   useEffect(() => {
     loadMessages();
+    let active = true;
+    let syncing = false;
+    realtimeConnectedRef.current = false;
+    setRealtimeConnected(false);
 
     const channel = supabase
       .channel('chat:' + conversationId)
@@ -130,9 +137,43 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
             : message));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (!active) return;
+        const connected = status === 'SUBSCRIBED';
+        realtimeConnectedRef.current = connected;
+        setRealtimeConnected(connected);
+        // Catch up on messages sent while the connection was reconnecting.
+        if (connected) void loadMessages();
+      });
+
+    // Realtime is the primary delivery path. This lightweight fallback keeps
+    // an open chat current during network drops or while Realtime is being set
+    // up for the messages table in Supabase.
+    const fallbackSync = window.setInterval(async () => {
+      if (!active || realtimeConnectedRef.current || syncing) return;
+      syncing = true;
+      const { data, error: syncError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE);
+      syncing = false;
+      if (!active || syncError || !data?.length) return;
+
+      const latest = (data as Message[]).reverse();
+      const knownIds = new Set(messagesRef.current.map((message) => message.id));
+      const hasNewIncoming = latest.some((message) =>
+        message.sender_id !== profile?.id && !knownIds.has(message.id)
+      );
+      if (hasNewIncoming) scheduleMarkRead();
+      setMessages((current) => mergeMessages(current, latest));
+    }, 2500);
 
     return () => {
+      active = false;
+      realtimeConnectedRef.current = false;
+      window.clearInterval(fallbackSync);
       if (markReadTimer.current) clearTimeout(markReadTimer.current);
       supabase.removeChannel(channel);
     };
@@ -141,6 +182,7 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
   }, [conversationId, profile]);
 
   useEffect(() => {
+    messagesRef.current = messages;
     if (shouldScrollToBottom.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -253,6 +295,10 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-white text-sm truncate">{otherUser.full_name}</p>
             <p className="text-xs text-slate-500 truncate">Sobre: {part.title}</p>
+            <p className={`mt-0.5 flex items-center gap-1.5 text-[10px] ${realtimeConnected ? 'text-green-400' : 'text-slate-500'}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${realtimeConnected ? 'bg-green-400' : 'bg-slate-500 animate-pulse'}`} />
+              {realtimeConnected ? 'Mensajería en tiempo real' : 'Sincronizando mensajes'}
+            </p>
           </div>
           <button
             type="button"

@@ -35,11 +35,13 @@ export default function MessagesView() {
   const [hasOlderConversations, setHasOlderConversations] = useState(false);
   const [activeConv, setActiveConv] = useState<ConvEnriched | null>(null);
   const activeConvId = useRef<string | null>(null);
+  const knownConversationIds = useRef(new Set<string>());
+  const conversationRefreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = async (offset = 0) => {
+  const load = async (offset = 0, quiet = false) => {
     if (!profile) return;
-    if (offset === 0) setLoading(true);
-    else setLoadingOlderConversations(true);
+    if (offset === 0 && !quiet) setLoading(true);
+    else if (offset > 0) setLoadingOlderConversations(true);
 
     const { data: rawConvs } = await supabase
       .from('conversations')
@@ -49,10 +51,10 @@ export default function MessagesView() {
       .range(offset, offset + CONVERSATIONS_PAGE_SIZE - 1);
 
     if (!rawConvs || rawConvs.length === 0) {
-      if (offset === 0) setConvs([]);
+      if (offset === 0 && !quiet) setConvs([]);
       setHasOlderConversations(false);
-      setLoading(false);
-      setLoadingOlderConversations(false);
+      if (!quiet) setLoading(false);
+      if (offset > 0) setLoadingOlderConversations(false);
       return;
     }
     setHasOlderConversations(rawConvs.length === CONVERSATIONS_PAGE_SIZE);
@@ -102,13 +104,18 @@ export default function MessagesView() {
       unread_count: unreadMap[c.id] ?? 0,
     }));
 
+    if (offset === 0 && !quiet) knownConversationIds.current.clear();
+    enriched.forEach((conversation) => knownConversationIds.current.add(conversation.id));
+
     setConvs((current) => {
-      const combined = offset === 0 ? enriched : [...current, ...enriched];
+      const combined = offset === 0
+        ? quiet ? [...enriched, ...current] : enriched
+        : [...current, ...enriched];
       return [...new Map(combined.map((conversation) => [conversation.id, conversation])).values()]
         .sort((a, b) => b.last_message_at.localeCompare(a.last_message_at));
     });
-    setLoading(false);
-    setLoadingOlderConversations(false);
+    if (!quiet) setLoading(false);
+    if (offset > 0) setLoadingOlderConversations(false);
   };
 
   useEffect(() => {
@@ -119,6 +126,12 @@ export default function MessagesView() {
       .channel(`messages-view:${profile.id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         const message = payload.new as { conversation_id: string; sender_id: string; created_at: string };
+        if (!knownConversationIds.current.has(message.conversation_id) && !conversationRefreshTimer.current) {
+          conversationRefreshTimer.current = setTimeout(() => {
+            conversationRefreshTimer.current = null;
+            void load(0, true);
+          }, 250);
+        }
         setConvs((current) => current
           .map((conversation) => conversation.id === message.conversation_id
             ? {
@@ -134,6 +147,8 @@ export default function MessagesView() {
       .subscribe();
 
     return () => {
+      if (conversationRefreshTimer.current) clearTimeout(conversationRefreshTimer.current);
+      conversationRefreshTimer.current = null;
       supabase.removeChannel(channel);
     };
     // load is intentionally called once when the signed-in user changes.
