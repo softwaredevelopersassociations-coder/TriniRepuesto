@@ -11,7 +11,10 @@ import {
   LayoutGrid,
   UserCircle,
   MessageSquare,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
+import { playMessageSound, unlockMessageAudio } from '@/lib/messageSound';
 
 export type DashTab =
   | 'overview'
@@ -40,8 +43,34 @@ export default function DashboardLayout({
 }) {
   const { profile, signOut } = useAuth();
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('trinirepuesto-message-sound') !== 'false';
+    } catch {
+      return true;
+    }
+  });
   const unreadRefreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const conversationIds = useRef<string[] | null>(null);
+  const outgoingMessageIds = useRef(new Set<string>());
+  const soundEnabledRef = useRef(soundEnabled);
+
+  useEffect(() => {
+    let unlocked = false;
+    const unlockOnInteraction = () => {
+      if (unlocked) return;
+      if (soundEnabledRef.current) unlockMessageAudio();
+      unlocked = true;
+      document.removeEventListener('pointerdown', unlockOnInteraction);
+      document.removeEventListener('keydown', unlockOnInteraction);
+    };
+    document.addEventListener('pointerdown', unlockOnInteraction);
+    document.addEventListener('keydown', unlockOnInteraction);
+    return () => {
+      document.removeEventListener('pointerdown', unlockOnInteraction);
+      document.removeEventListener('keydown', unlockOnInteraction);
+    };
+  }, []);
 
   const loadUnreadCount = async () => {
     if (!profile) return;
@@ -75,6 +104,7 @@ export default function DashboardLayout({
       return;
     }
     conversationIds.current = null;
+    outgoingMessageIds.current.clear();
     loadUnreadCount();
 
     const scheduleUnreadRefresh = () => {
@@ -90,6 +120,7 @@ export default function DashboardLayout({
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         const message = payload.new as { id: string; sender_id: string };
         if (message.sender_id !== profile.id) {
+          if (soundEnabledRef.current) playMessageSound();
           void supabase
             .from('messages')
             .update({ delivered_at: new Date().toISOString() })
@@ -100,10 +131,20 @@ export default function DashboardLayout({
               if (deliveryError) console.warn('No se pudo confirmar la entrega del mensaje.', deliveryError);
             });
           scheduleUnreadRefresh();
+        } else {
+          outgoingMessageIds.current.add(message.id);
         }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-        const message = payload.new as { sender_id: string; read_at: string | null };
+        const message = payload.new as { id: string; sender_id: string; delivered_at: string | null; read_at: string | null };
+        if (
+          message.sender_id === profile.id &&
+          message.delivered_at &&
+          outgoingMessageIds.current.delete(message.id) &&
+          soundEnabledRef.current
+        ) {
+          playMessageSound();
+        }
         if (message.sender_id !== profile.id && message.read_at) scheduleUnreadRefresh();
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'conversations' }, () => {
@@ -129,6 +170,18 @@ export default function DashboardLayout({
 
   const showMechanic = profile.role === 'mechanic' || profile.role === 'both';
   const showSeller = profile.role === 'seller' || profile.role === 'both';
+
+  const toggleMessageSound = () => {
+    const enabled = !soundEnabledRef.current;
+    soundEnabledRef.current = enabled;
+    setSoundEnabled(enabled);
+    try {
+      localStorage.setItem('trinirepuesto-message-sound', String(enabled));
+    } catch {
+      // Sound still works for this session if local storage is unavailable.
+    }
+    if (enabled) unlockMessageAudio();
+  };
 
   const navItems: NavItem[] = [{ key: 'overview', label: 'Resumen', icon: LayoutGrid }];
 
@@ -199,6 +252,16 @@ export default function DashboardLayout({
         <div className="p-4 border-t border-slate-800">
           <button
             type="button"
+            onClick={toggleMessageSound}
+            aria-pressed={soundEnabled}
+            title={soundEnabled ? 'Silenciar sonido de mensajes' : 'Activar sonido de mensajes'}
+            className="btn-ghost mb-3 w-full text-sm"
+          >
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            {soundEnabled ? 'Sonido activado' : 'Sonido silenciado'}
+          </button>
+          <button
+            type="button"
             onClick={() => onTabChange('profile')}
             className="flex items-center gap-3 mb-3 w-full text-left hover:bg-slate-800 rounded-lg p-1 -m-1 transition"
           >
@@ -266,9 +329,20 @@ export default function DashboardLayout({
               </div>
               <span className="text-lg font-bold text-white">TriniRepuesto</span>
             </div>
-            <button type="button" onClick={signOut} className="btn-ghost p-2">
-              <LogOut className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={toggleMessageSound}
+                aria-label={soundEnabled ? 'Silenciar sonido de mensajes' : 'Activar sonido de mensajes'}
+                aria-pressed={soundEnabled}
+                className="btn-ghost p-2"
+              >
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </button>
+              <button type="button" onClick={signOut} className="btn-ghost p-2">
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {children}
