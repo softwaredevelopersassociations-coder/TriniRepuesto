@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import type { Message, Part } from '@/types';
+import { playMessageSound } from '@/lib/messageSound';
 import { X, Send, Package } from 'lucide-react';
 
 const PAGE_SIZE = 50;
@@ -49,6 +50,7 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
+  const initialSyncComplete = useRef(false);
   const realtimeConnectedRef = useRef(false);
   const shouldScrollToBottom = useRef(true);
   const markReadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,7 +96,10 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
     }
     const newest = (data as Message[]) || [];
     shouldScrollToBottom.current = true;
-    setMessages((current) => mergeMessages(current, [...newest].reverse()));
+    const orderedNewest = [...newest].reverse();
+    messagesRef.current = mergeMessages(messagesRef.current, orderedNewest);
+    initialSyncComplete.current = true;
+    setMessages((current) => mergeMessages(current, orderedNewest));
     setHasMore(newest.length === PAGE_SIZE);
     scheduleMarkRead();
   };
@@ -118,6 +123,9 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
         },
         (payload) => {
           const message = payload.new as Message;
+          if (message.sender_id !== profile?.id) {
+            playMessageSound(`incoming:${message.id}`);
+          }
           setMessages((current) => mergeMessages(current, [message]));
           if (message.sender_id !== profile?.id) scheduleMarkRead();
         }
@@ -162,13 +170,21 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
       if (!active || syncError || !data?.length) return;
 
       const latest = (data as Message[]).reverse();
+      if (!initialSyncComplete.current) {
+        messagesRef.current = mergeMessages(messagesRef.current, latest);
+        initialSyncComplete.current = true;
+        setMessages((current) => mergeMessages(current, latest));
+        return;
+      }
       const knownIds = new Set(messagesRef.current.map((message) => message.id));
-      const hasNewIncoming = latest.some((message) =>
+      const newIncoming = latest.filter((message) =>
         message.sender_id !== profile?.id && !knownIds.has(message.id)
       );
-      if (hasNewIncoming) scheduleMarkRead();
+      newIncoming.forEach((message) => playMessageSound(`incoming:${message.id}`));
+      if (newIncoming.length) scheduleMarkRead();
+      messagesRef.current = mergeMessages(messagesRef.current, latest);
       setMessages((current) => mergeMessages(current, latest));
-    }, 2500);
+    }, 1000);
 
     return () => {
       active = false;

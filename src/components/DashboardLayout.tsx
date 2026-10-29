@@ -120,7 +120,7 @@ export default function DashboardLayout({
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         const message = payload.new as { id: string; sender_id: string };
         if (message.sender_id !== profile.id) {
-          if (soundEnabledRef.current) playMessageSound();
+          if (soundEnabledRef.current) playMessageSound(`incoming:${message.id}`);
           void supabase
             .from('messages')
             .update({ delivered_at: new Date().toISOString() })
@@ -143,7 +143,7 @@ export default function DashboardLayout({
           outgoingMessageIds.current.delete(message.id) &&
           soundEnabledRef.current
         ) {
-          playMessageSound();
+          playMessageSound(`delivered:${message.id}`);
         }
         if (message.sender_id !== profile.id && message.read_at) scheduleUnreadRefresh();
       })
