@@ -49,8 +49,8 @@ export default function SellerRatingModal({ sellerId, sellerName, partId, partTi
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="card w-full max-w-md p-6 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
+      <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-white">Calificar vendedor</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-800 rounded-lg transition">
@@ -58,8 +58,8 @@ export default function SellerRatingModal({ sellerId, sellerName, partId, partTi
           </button>
         </div>
 
-        <p className="text-sm text-slate-400 mb-1">Vendedor: <span className="text-slate-200 font-medium">{sellerName}</span></p>
-        <p className="text-xs text-slate-500 mb-5">Repuesto: {partTitle}</p>
+        <p className="mb-1 break-words text-sm text-slate-400">Vendedor: <span className="font-medium text-slate-200">{sellerName}</span></p>
+        <p className="mb-5 break-words text-xs text-slate-500">Repuesto: {partTitle}</p>
 
         {/* Stars */}
         <div className="flex items-center gap-2 mb-4">
@@ -97,7 +97,7 @@ export default function SellerRatingModal({ sellerId, sellerName, partId, partTi
 
         {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
           <button onClick={onClose} className="btn-ghost flex-1">Cancelar</button>
           <button
             onClick={handleSave}

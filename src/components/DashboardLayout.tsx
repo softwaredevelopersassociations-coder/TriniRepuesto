@@ -155,7 +155,7 @@ export default function DashboardLayout({
   navItems.push({ key: 'profile', label: 'Mi perfil', icon: UserCircle });
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-dvh min-h-screen w-full min-w-0 bg-slate-950 flex overflow-x-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 hidden md:flex">
         <div className="p-6 border-b border-slate-800">
@@ -226,7 +226,8 @@ export default function DashboardLayout({
       </aside>
 
       {/* Mobile nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-50 flex justify-around p-2">
+      <div className="mobile-nav-safe no-scrollbar md:hidden fixed inset-x-0 bottom-0 z-50 overflow-x-auto border-t border-slate-800 bg-slate-900">
+        <nav className="flex min-w-full items-stretch justify-around gap-0.5 px-1 pt-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = activeTab === item.key;
@@ -235,27 +236,28 @@ export default function DashboardLayout({
               key={item.key}
               type="button"
               onClick={() => onTabChange(item.key)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition relative ${
+              className={`relative flex min-w-[44px] flex-1 flex-col items-center gap-1 rounded-lg px-0.5 py-1.5 text-center leading-tight transition ${
                 active ? 'text-orange-400' : 'text-slate-500'
               }`}
             >
-              <div className="relative">
+              <span className="relative">
                 <Icon className="w-5 h-5" />
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className="absolute -top-1 -right-2 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                     {item.badge > 9 ? '9+' : item.badge}
                   </span>
                 )}
-              </div>
-              <span className="text-[10px]">{item.label}</span>
+              </span>
+              <span className="max-w-full text-[9px] sm:text-[10px]">{item.label}</span>
             </button>
           );
         })}
+        </nav>
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
-        <div className="p-6 lg:p-8 max-w-6xl mx-auto">
+      <main className="min-w-0 flex-1 overflow-y-auto pb-24 md:pb-0">
+        <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:p-6 lg:p-8">
           {/* Mobile header */}
           <div className="md:hidden flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">

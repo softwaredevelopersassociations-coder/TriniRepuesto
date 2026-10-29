@@ -130,8 +130,8 @@ export default function LocationMap({ latitude, longitude, onSelect }: Props) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-lg">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-700 bg-slate-900/90 px-3 py-2">
-        <div>
+      <div className="flex flex-col gap-2 border-b border-slate-700 bg-slate-900/90 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-white">Ubicación de la tienda</p>
           <p className="text-[11px] text-slate-400">Toca el mapa o arrástralo para colocar el pin</p>
         </div>
@@ -198,7 +198,7 @@ export default function LocationMap({ latitude, longitude, onSelect }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/70 px-3 py-2 text-xs">
-        <span className={hasSelection ? 'text-cyan-300' : 'text-slate-400'}>
+        <span className={`break-all ${hasSelection ? 'text-cyan-300' : 'text-slate-400'}`}>
           {hasSelection ? `${center.latitude.toFixed(6)}, ${center.longitude.toFixed(6)}` : 'Aún no seleccionas un pin'}
         </span>
         <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300">

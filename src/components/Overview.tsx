@@ -92,7 +92,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Hola, {profile.full_name.split(' ')[0]}</h1>
+        <h1 className="mb-1 break-words text-xl font-bold text-white sm:text-2xl">Hola, {profile.full_name.split(' ')[0]}</h1>
         <p className="text-slate-400">
           Rol: <span className="text-orange-400 font-medium">{ROLE_LABELS[profile.role]}</span>
         </p>
@@ -109,7 +109,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="card p-5 hover:border-slate-700 transition">
+                <div key={stat.label} className="card p-4 transition hover:border-slate-700 sm:p-5">
                   <div className="flex items-start justify-between mb-3">
                     <Icon className={`w-7 h-7 ${stat.color}`} />
                   </div>
@@ -123,7 +123,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Maintenance suggestions based on user-entered next service targets */}
             {showMechanic && (
-              <div className="card p-6">
+              <div className="card min-w-0 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar className="w-5 h-5 text-orange-400" />
                   <h2 className="text-lg font-semibold text-white">Sugerencias de mantenimiento</h2>
@@ -133,8 +133,8 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
                 ) : (
                   <div className="space-y-3">
                     {serviceSuggestions.slice(0, 5).map(({ record, motorcycle, overdue, remainingKm }) => (
-                        <div key={record.id} className="flex items-center justify-between gap-3 bg-slate-800/50 rounded-lg p-3">
-                          <div>
+                        <div key={record.id} className="flex flex-col gap-2 rounded-lg bg-slate-800/50 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                          <div className="min-w-0">
                             <p className="text-sm font-medium text-slate-200">{MAINTENANCE_TYPES[record.type].label}</p>
                             <p className="text-xs text-slate-500">{motorcycle ? `${motorcycle.brand} ${motorcycle.model}` : 'Moto'} · {record.description}</p>
                             <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-400">
@@ -154,7 +154,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
             {/* Recent parts */}
             {showSeller && (
-              <div className="card p-6">
+              <div className="card min-w-0 p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Store className="w-5 h-5 text-cyan-400" />
@@ -172,8 +172,8 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
                 ) : (
                   <div className="space-y-3">
                     {parts.slice(0, 4).map((p) => (
-                      <div key={p.id} className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3">
-                        <div>
+                      <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
+                        <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-200">{p.title}</p>
                           <p className="text-xs text-slate-500">{p.condition === 'new' ? 'Nuevo' : p.condition === 'used' ? 'Usado' : 'Reacondicionado'}</p>
                         </div>
@@ -187,7 +187,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
             {/* Recent maintenance */}
             {showMechanic && (
-              <div className="card p-6">
+              <div className="card min-w-0 p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Wrench className="w-5 h-5 text-cyan-400" />
@@ -207,8 +207,8 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
                     {records.slice(0, 4).map((r) => {
                       const moto = motos.find((m) => m.id === r.motorcycle_id);
                       return (
-                        <div key={r.id} className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3">
-                          <div>
+                        <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
+                          <div className="min-w-0">
                             <p className="text-sm font-medium text-slate-200">{r.description}</p>
                             <p className="text-xs text-slate-500">
                               {moto ? `${moto.brand} ${moto.model}` : ''} ·{' '}

@@ -114,7 +114,7 @@ export default function MotorcyclesView() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Mis motocicletas</h1>
           <p className="text-slate-400 text-sm">Registra y gestiona tus motos</p>
@@ -126,7 +126,7 @@ export default function MotorcyclesView() {
       </div>
 
       {motos.length === 0 ? (
-        <div className="card p-12 text-center">
+        <div className="card p-6 text-center sm:p-12">
           <Bike className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400 mb-4">No tienes motocicletas registradas</p>
           <button onClick={openAdd} className="btn-primary mx-auto">
@@ -163,7 +163,7 @@ export default function MotorcyclesView() {
               </div>
               <h3 className="text-lg font-bold text-white">{m.brand} {m.model}</h3>
               <p className="text-sm text-slate-400 mb-3">{m.year}</p>
-              <div className="flex items-center gap-4 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:gap-4">
                 {m.plate && <span className="badge bg-slate-800 text-slate-300">{m.plate}</span>}
                 <span>{m.mileage.toLocaleString()} km</span>
               </div>
@@ -174,8 +174,8 @@ export default function MotorcyclesView() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="card p-6 w-full max-w-md animate-fade-in" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowForm(false)}>
+          <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">{editing ? 'Editar moto' : 'Nueva motocicleta'}</h2>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
@@ -198,7 +198,7 @@ export default function MotorcyclesView() {
                   {form.image_url && <button type="button" className="btn-ghost text-xs" onClick={() => setForm({ ...form, image_url: '' })}>Quitar</button>}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Marca</label>
                   <input className="input" required value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Honda" />
@@ -208,7 +208,7 @@ export default function MotorcyclesView() {
                   <input className="input" required value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="CBR 600" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Año</label>
                   <input className="input" type="number" min="1900" max={new Date().getFullYear() + 1} required value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} />

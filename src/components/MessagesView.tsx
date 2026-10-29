@@ -182,7 +182,7 @@ export default function MessagesView() {
                   prev.map((c) => (c.id === conv.id ? { ...c, unread_count: 0 } : c))
                 );
               }}
-              className="card p-4 flex items-center gap-4 cursor-pointer hover:border-slate-700 transition group"
+              className="card group flex min-w-0 cursor-pointer items-center gap-3 p-3 transition hover:border-slate-700 sm:gap-4 sm:p-4"
             >
               {/* Avatar */}
               <div className="w-11 h-11 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-200 overflow-hidden shrink-0 relative">
@@ -206,7 +206,7 @@ export default function MessagesView() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <p
-                    className={`text-sm font-semibold truncate ${
+                    className={`min-w-0 flex-1 truncate text-sm font-semibold ${
                       conv.unread_count > 0 ? 'text-white' : 'text-slate-200'
                     }`}
                   >

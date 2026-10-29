@@ -74,9 +74,9 @@ export default function AuthScreen() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-950">
+    <div className="min-h-dvh min-h-screen w-full overflow-x-hidden bg-slate-950 flex flex-col lg:flex-row">
       {/* Left panel — branding */}
-      <section className="auth-brand-panel relative isolate lg:w-1/2 min-h-[360px] lg:min-h-screen flex flex-col justify-center items-center p-8 lg:p-16 overflow-hidden">
+      <section className="auth-brand-panel relative isolate flex min-h-[320px] w-full flex-col items-center justify-center overflow-hidden p-6 sm:p-8 lg:min-h-screen lg:w-1/2 lg:p-16">
         <AuthBackdrop />
         <div className="relative z-10 max-w-md text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-orange-500/90 rounded-2xl mb-6 shadow-2xl shadow-orange-500/30 ring-1 ring-white/20 backdrop-blur-sm">
@@ -87,7 +87,7 @@ export default function AuthScreen() {
           <p className="text-slate-200 text-lg mb-8 drop-shadow">
             Mantenimiento y repuestos para motocicletas en un solo lugar
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <div className="bg-slate-950/50 backdrop-blur-xl rounded-xl p-4 border border-white/15 shadow-xl">
               <Wrench className="w-8 h-8 text-orange-400 mb-2" />
               <p className="text-white text-sm font-medium">Gestiona el mantenimiento de tus motos</p>
@@ -113,9 +113,9 @@ export default function AuthScreen() {
       </section>
 
       {/* Right panel — form */}
-      <section className="auth-form-panel relative isolate lg:w-1/2 flex items-center justify-center p-5 sm:p-8 lg:p-12 overflow-y-auto">
+      <section className="auth-form-panel relative isolate flex w-full items-center justify-center overflow-y-auto p-4 sm:p-8 lg:w-1/2 lg:p-12">
         <AuthBackdrop />
-        <div className="relative z-10 w-full max-w-md py-7 sm:p-8 rounded-3xl border border-white/10 bg-slate-950/75 backdrop-blur-2xl shadow-2xl shadow-slate-950/50">
+        <div className="relative z-10 my-3 w-full max-w-md rounded-2xl border border-white/10 bg-slate-950/75 p-4 shadow-2xl shadow-slate-950/50 backdrop-blur-2xl sm:my-6 sm:rounded-3xl sm:p-8">
           <div className="mb-7">
           <h2 className="text-2xl font-bold text-white mb-1">
             {mode === 'signin' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
@@ -151,7 +151,7 @@ export default function AuthScreen() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <div>
                     <label className="label">Teléfono (opcional)</label>
                     <div className="relative">

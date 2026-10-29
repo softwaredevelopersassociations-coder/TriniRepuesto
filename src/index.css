@@ -22,6 +22,14 @@
   body {
     @apply bg-slate-950 text-slate-100 antialiased;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
   }
 
   * {
@@ -67,6 +75,28 @@
   }
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-nav-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+  .safe-bottom-padding {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 639px) {
+  .input {
+    font-size: 16px;
   }
 }
 

@@ -230,11 +230,11 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="card w-full sm:max-w-lg flex flex-col h-[90vh] sm:h-[560px] animate-fade-in"
+        className="card flex h-[100dvh] w-full flex-col rounded-none animate-fade-in sm:h-[560px] sm:max-h-[90dvh] sm:max-w-lg sm:rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -341,7 +341,7 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-slate-800 flex items-end gap-2 shrink-0">
+        <div className="safe-bottom-padding flex shrink-0 items-end gap-2 border-t border-slate-800 p-3 sm:p-4">
           <textarea
             className="input flex-1 resize-none text-sm min-h-[40px] max-h-[120px]"
             rows={1}

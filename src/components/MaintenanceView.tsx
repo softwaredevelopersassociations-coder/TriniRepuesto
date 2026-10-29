@@ -123,7 +123,7 @@ export default function MaintenanceView() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Mantenimiento</h1>
           <p className="text-slate-400 text-sm">Historial de servicios de tus motos</p>
@@ -136,7 +136,7 @@ export default function MaintenanceView() {
       {error && <div role="alert" className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</div>}
 
       {motos.length === 0 ? (
-        <div className="card p-12 text-center">
+        <div className="card p-6 text-center sm:p-12">
           <Wrench className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400">Primero registra una motocicleta para agregar mantenimiento</p>
         </div>
@@ -176,8 +176,8 @@ export default function MaintenanceView() {
                 const motorcycle = motos.find((m) => m.id === r.motorcycle_id);
                 const mileageDue = r.next_service_mileage != null && motorcycle && motorcycle.mileage >= r.next_service_mileage;
                 return (
-                <div key={r.id} className="card p-5 hover:border-slate-700 transition group">
-                  <div className="flex items-start justify-between gap-4">
+                <div key={r.id} className="card group p-4 transition hover:border-slate-700 sm:p-5">
+                  <div className="flex items-start justify-between gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className="badge bg-orange-500/10 text-orange-400">
@@ -219,7 +219,7 @@ export default function MaintenanceView() {
                     </div>
                     <button
                       onClick={() => remove(r.id)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition opacity-0 group-hover:opacity-100"
+                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -234,8 +234,8 @@ export default function MaintenanceView() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="card p-6 w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowForm(false)}>
+          <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">Nuevo mantenimiento</h2>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
@@ -263,7 +263,7 @@ export default function MaintenanceView() {
                 <label className="label">Descripción</label>
                 <textarea className="input min-h-[80px] resize-none" required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalle del servicio realizado..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Costo ($)</label>
                   <input className="input" type="number" min="0" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="0" />
@@ -277,7 +277,7 @@ export default function MaintenanceView() {
                 <label className="label">Fecha del servicio</label>
                 <input className="input" type="date" required value={form.service_date} onChange={(e) => setForm({ ...form, service_date: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Próx. servicio (km)</label>
                   <input className="input" type="number" min="0" value={form.next_service_mileage} onChange={(e) => setForm({ ...form, next_service_mileage: e.target.value })} placeholder="Opcional" />

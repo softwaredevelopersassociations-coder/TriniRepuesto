@@ -162,7 +162,7 @@ export default function MyPartsView() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Mis repuestos</h1>
           <p className="text-slate-400 text-sm">Gestiona tus publicaciones en el marketplace</p>
@@ -174,7 +174,7 @@ export default function MyPartsView() {
       </div>
 
       {parts.length === 0 ? (
-        <div className="card p-12 text-center">
+        <div className="card p-6 text-center sm:p-12">
           <Store className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400 mb-4">No has publicado repuestos</p>
           <button onClick={openAdd} className="btn-primary mx-auto">
@@ -184,7 +184,7 @@ export default function MyPartsView() {
         </div>
       ) : (
         <>
-        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input className="input pl-10" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre, marca o modelo..." />
@@ -246,8 +246,8 @@ export default function MyPartsView() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="card p-6 w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowForm(false)}>
+          <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">{editing ? 'Editar repuesto' : 'Publicar repuesto'}</h2>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
@@ -309,7 +309,7 @@ export default function MyPartsView() {
                 <input className="input" value={form.compatible_motorcycles} onChange={(e) => setForm({ ...form, compatible_motorcycles: e.target.value })} placeholder="Honda CBR 600, Yamaha FZ 150" />
                 <p className="mt-1 text-xs text-slate-500">Indica marca y modelo para que los motociclistas puedan filtrar repuestos compatibles.</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Categoría</label>
                   <select className="input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as PartCategory })}>
@@ -323,7 +323,7 @@ export default function MyPartsView() {
                   <input className="input" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Pirelli" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Condición</label>
                   <select className="input" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value as PartCondition })}>
@@ -341,7 +341,7 @@ export default function MyPartsView() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Precio ($)</label>
                   <input className="input" type="number" min="0" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0" />

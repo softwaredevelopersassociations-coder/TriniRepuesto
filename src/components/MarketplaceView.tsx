@@ -306,7 +306,7 @@ export default function MarketplaceView() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="input text-xs py-2 w-auto bg-slate-900 border-slate-700 text-slate-200"
+            className="input w-full bg-slate-900 py-2 text-xs text-slate-200 sm:w-auto sm:min-w-[10rem]"
             >
               <option value="recent">Más recientes</option>
               <option value="price_asc">Menor precio</option>
@@ -422,7 +422,7 @@ export default function MarketplaceView() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="card p-12 text-center">
+        <div className="card p-6 text-center sm:p-12">
           <Store className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400 font-medium">No se encontraron repuestos</p>
           <p className="text-slate-500 text-xs mt-1">Prueba cambiando los filtros o la búsqueda</p>
@@ -500,14 +500,14 @@ export default function MarketplaceView() {
       {/* Detail Modal */}
       {selected && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-2 py-3 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={() => setSelected(null)}
         >
           <div
-            className="card w-full max-w-xl max-h-[90vh] overflow-y-auto my-auto animate-fade-in scrollbar-thin"
+            className="card my-auto max-h-[90dvh] w-full max-w-xl animate-fade-in overflow-y-auto scrollbar-thin"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="h-60 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
+            <div className="relative flex h-48 items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 sm:h-60">
               {selected.image_url ? (
                 <img src={selected.image_url} alt={selected.title} className="w-full h-full object-cover" />
               ) : (
@@ -522,7 +522,7 @@ export default function MarketplaceView() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="badge bg-cyan-500/10 text-cyan-400">{PART_CATEGORIES[selected.category]}</span>
                 <span className="badge bg-slate-800 text-slate-300">{PART_CONDITIONS[selected.condition]}</span>
@@ -533,8 +533,8 @@ export default function MarketplaceView() {
                 )}
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-2">{selected.title}</h2>
-              <p className="text-sm text-slate-300 mb-5 whitespace-pre-wrap">{selected.description}</p>
+              <h2 className="mb-2 break-words text-xl font-bold text-white sm:text-2xl">{selected.title}</h2>
+              <p className="mb-5 whitespace-pre-wrap break-words text-sm text-slate-300">{selected.description}</p>
               {selected.compatible_motorcycles && (
                 <div className="mb-5 rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
                   <p className="text-xs font-semibold text-cyan-300">Modelos compatibles</p>
@@ -543,9 +543,9 @@ export default function MarketplaceView() {
               )}
 
               {/* Vendedor Box */}
-              <div className="p-4 bg-slate-800/60 rounded-xl border border-slate-700/60 mb-5">
-                <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-                  <div className="flex items-center gap-3">
+              <div className="mb-5 rounded-xl border border-slate-700/60 bg-slate-800/60 p-3 sm:p-4">
+                <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-200 overflow-hidden shrink-0">
                       {selected.seller?.avatar_url ? (
                         <img src={selected.seller.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -553,11 +553,11 @@ export default function MarketplaceView() {
                         (selected.seller?.full_name || 'V').charAt(0).toUpperCase()
                       )}
                     </div>
-                    <div>
-                      <p className="font-semibold text-white text-sm">{selected.seller?.business_name || selected.seller?.full_name || 'Vendedor'}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words text-sm font-semibold text-white">{selected.seller?.business_name || selected.seller?.full_name || 'Vendedor'}</p>
                       {selected.seller?.business_name && <p className="text-xs text-slate-400">{selected.seller.full_name}</p>}
                       {selected.seller?.store_location && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                        <p className="mt-0.5 flex items-start gap-1 break-words text-xs text-slate-400">
                           <MapPin className="w-3 h-3 text-slate-500" /> {selected.seller.store_location}
                         </p>
                       )}
@@ -572,7 +572,7 @@ export default function MarketplaceView() {
                           <MapPin className="h-3 w-3" /> Ver ubicación en Google Maps
                         </a>
                       )}
-                      {selected.seller?.business_details && <p className="mt-2 max-w-md text-xs text-slate-400">{selected.seller.business_details}</p>}
+                      {selected.seller?.business_details && <p className="mt-2 max-w-md break-words text-xs text-slate-400">{selected.seller.business_details}</p>}
                     </div>
                   </div>
 
@@ -586,7 +586,7 @@ export default function MarketplaceView() {
 
               {/* Reseñas / Calificaciones */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> Reseñas de este repuesto (
                     {partRatings.length})
@@ -650,7 +650,7 @@ export default function MarketplaceView() {
               </div>
 
               {/* Price & Action */}
-              <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+              <div className="flex flex-col gap-4 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-2xl font-bold text-green-400 flex items-center gap-1">
                     <DollarSign className="w-5 h-5" />
@@ -664,7 +664,7 @@ export default function MarketplaceView() {
                     type="button"
                     onClick={() => handleContactSeller(selected)}
                     disabled={startingChat}
-                    className="btn-primary flex items-center gap-2"
+                    className="btn-primary w-full sm:w-auto"
                   >
                     {startingChat ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

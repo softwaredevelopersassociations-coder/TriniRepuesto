@@ -109,7 +109,7 @@ export default function ProfileView() {
       )}
 
       {/* Profile card */}
-      <div className="card p-6 mb-6">
+      <div className="card mb-6 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
           <div className="relative group shrink-0">
@@ -140,8 +140,8 @@ export default function ProfileView() {
 
           {/* Info */}
           <div className="flex-1 text-center sm:text-left">
-            <h2 className="text-xl font-bold text-white">{profile.full_name}</h2>
-            <p className="text-sm text-slate-400 mb-3">{profile.email}</p>
+            <h2 className="break-words text-xl font-bold text-white">{profile.full_name}</h2>
+            <p className="mb-3 break-all text-sm text-slate-400">{profile.email}</p>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               <span className="badge bg-orange-500/10 text-orange-400 flex items-center gap-1">
                 {(() => {
@@ -179,28 +179,28 @@ export default function ProfileView() {
 
       {/* Details grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="card p-5">
+          <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <Mail className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Correo</span>
           </div>
           <p className="text-sm text-slate-200">{profile.email}</p>
         </div>
-        <div className="card p-5">
+          <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <Phone className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Teléfono</span>
           </div>
           <p className="text-sm text-slate-200">{profile.phone || 'No registrado'}</p>
         </div>
-        <div className="card p-5">
+          <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <IdCard className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Carnet</span>
           </div>
           <p className="text-sm text-slate-200">{profile.carnet || 'No registrado'}</p>
         </div>
-        <div className="card p-5">
+          <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <MapPinned className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Ubicación de tienda</span>
@@ -226,14 +226,14 @@ export default function ProfileView() {
         />
         {(profile.role === 'seller' || profile.role === 'both') && (
           <>
-            <div className="card p-5">
+            <div className="card min-w-0 p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Store className="w-4 h-4 text-slate-500" />
                 <span className="label mb-0">Nombre del negocio</span>
               </div>
               <p className="text-sm text-slate-200">{profile.business_name || 'No registrado'}</p>
             </div>
-            <div className="card p-5">
+            <div className="card min-w-0 p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Store className="w-4 h-4 text-slate-500" />
                 <span className="label mb-0">Información del negocio</span>
@@ -252,8 +252,8 @@ export default function ProfileView() {
 
       {/* Edit modal */}
       {editing && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditing(false)}>
-          <div className="card p-6 w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setEditing(false)}>
+          <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">Editar perfil</h2>
               <button onClick={() => setEditing(false)} className="text-slate-400 hover:text-white">
@@ -293,7 +293,7 @@ export default function ProfileView() {
               </div>
               <div>
                 <label className="label">Rol</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   {([
                     { val: 'mechanic', label: 'Mantenimiento', icon: Wrench },
                     { val: 'seller', label: 'Vender', icon: Store },
