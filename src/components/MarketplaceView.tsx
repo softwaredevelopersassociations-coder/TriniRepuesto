@@ -45,7 +45,7 @@ function partMatchesMotorcycle(compatibility: string, motorcycle: Motorcycle) {
   });
 }
 
-export default function MarketplaceView() {
+export default function MarketplaceView({ onNavigate }: { onNavigate: (tab: string) => void }) {
   const { profile } = useAuth();
   const [parts, setParts] = useState<Part[]>([]);
   const [myMotorcycles, setMyMotorcycles] = useState<Motorcycle[]>([]);
@@ -240,7 +240,7 @@ export default function MarketplaceView() {
 
   const selectedMotorcycle = myMotorcycles.find((motorcycle) => motorcycle.id === compatibleWith) || null;
   const matchingMotorcycles = myMotorcycles.filter((motorcycle) =>
-    `${motorcycle.brand} ${motorcycle.model} ${motorcycle.year}`.toLowerCase().includes(motorcycleSearch.trim().toLowerCase())
+    `${motorcycle.brand} ${motorcycle.model} ${motorcycle.year} ${motorcycle.plate || ''}`.toLowerCase().includes(motorcycleSearch.trim().toLowerCase())
   );
 
   const filtered = parts
@@ -320,8 +320,8 @@ export default function MarketplaceView() {
           <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 sm:p-4" aria-label="Buscar repuestos por motocicleta">
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-200">Busca con la moto de tu cliente</p>
-                <p className="text-xs text-slate-500">Elige una moto registrada para filtrar repuestos compatibles y ver su foto.</p>
+                <p className="text-sm font-semibold text-slate-200">Busca por una de tus motocicletas</p>
+                <p className="text-xs text-slate-500">Elige una moto registrada para filtrar por marca, modelo y año.</p>
               </div>
               <div className="relative w-full sm:max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
@@ -329,7 +329,7 @@ export default function MarketplaceView() {
                   className="input py-2 pl-9"
                   value={motorcycleSearch}
                   onChange={(event) => setMotorcycleSearch(event.target.value)}
-                  placeholder="Buscar marca, modelo o año..."
+                  placeholder="Marca, modelo, año o placa..."
                   aria-label="Buscar una moto registrada"
                 />
               </div>
@@ -359,7 +359,7 @@ export default function MarketplaceView() {
                   </div>
                   <span className="min-w-0">
                     <span className="block truncate text-xs font-medium text-slate-200">{motorcycle.brand} {motorcycle.model}</span>
-                    <span className="block text-[11px] text-slate-500">{motorcycle.year}</span>
+                    <span className="block text-[11px] text-slate-500">{motorcycle.year}{motorcycle.plate ? ` · ${motorcycle.plate}` : ''}</span>
                   </span>
                 </button>
               ))}
@@ -384,7 +384,13 @@ export default function MarketplaceView() {
             )}
           </section>
         ) : (
-          <p className="text-xs text-slate-500">Registra la moto del cliente en “Mis motos” para buscar repuestos compatibles y mostrar su foto aquí.</p>
+          <div className="flex flex-col gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-200">Encuentra repuestos para tu moto</p>
+              <p className="mt-1 text-xs text-slate-400">Registra la marca, modelo y año para filtrar los productos compatibles.</p>
+            </div>
+            {profile?.role === 'client' && <button type="button" onClick={() => onNavigate('motorcycles')} className="btn-secondary shrink-0">Registrar mi moto</button>}
+          </div>
         )}
 
         {/* Categories Bar */}

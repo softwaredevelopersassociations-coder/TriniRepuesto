@@ -22,7 +22,7 @@ export default function AuthScreen() {
   const [storeLongitude, setStoreLongitude] = useState<number | null>(null);
   const [businessName, setBusinessName] = useState('');
   const [businessDetails, setBusinessDetails] = useState('');
-  const [role, setRole] = useState<UserRole>('mechanic');
+  const [role, setRole] = useState<UserRole>('client');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +45,10 @@ export default function AuthScreen() {
             phone: phone || null,
             carnet: carnet || null,
             store_location: storeLocation || null,
-            store_latitude: role === 'seller' || role === 'both' ? storeLatitude : null,
-            store_longitude: role === 'seller' || role === 'both' ? storeLongitude : null,
-            business_name: role === 'seller' || role === 'both' ? businessName.trim() : null,
-            business_details: role === 'seller' || role === 'both' ? businessDetails.trim() || null : null,
+            store_latitude: role === 'seller' ? storeLatitude : null,
+            store_longitude: role === 'seller' ? storeLongitude : null,
+            business_name: role === 'seller' ? businessName.trim() : null,
+            business_details: role === 'seller' ? businessDetails.trim() || null : null,
           });
           if (profileError) throw profileError;
         }
@@ -58,7 +58,9 @@ export default function AuthScreen() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Ocurrió un error';
-      if (msg.includes('Invalid login credentials')) {
+      if (msg.includes('profiles_role_check')) {
+        setError('Tu base de datos todavía no acepta el perfil Cliente. Aplica primero la migración 20261031000000_convert_profiles_to_clients.sql en Supabase.');
+      } else if (msg.includes('Invalid login credentials')) {
         setError('Credenciales inválidas. Verifica tu correo y contraseña.');
       } else if (msg.includes('For security purposes, you can only request this after')) {
         const seconds = msg.match(/\d+/)?.[0] || 'unos';
@@ -182,11 +184,10 @@ export default function AuthScreen() {
 
                 <div>
                   <label className="label">¿Cómo vas a usar TriniRepuesto?</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {([
-                      { val: 'mechanic', label: 'Mantenimiento', icon: Wrench },
+                      { val: 'client', label: 'Cliente', icon: User },
                       { val: 'seller', label: 'Vender', icon: Store },
-                      { val: 'both', label: 'Ambos', icon: Bike },
                     ] as const).map(({ val, label, icon: Icon }) => (
                       <button
                         key={val}
@@ -205,7 +206,7 @@ export default function AuthScreen() {
                   </div>
                 </div>
 
-                {(role === 'seller' || role === 'both') && (
+                {role === 'seller' && (
                   <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
                     <p className="text-sm font-semibold text-slate-200">Datos del negocio</p>
                     <div>

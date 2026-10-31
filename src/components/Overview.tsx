@@ -16,12 +16,12 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
     if (!profile) return;
     const userId = profile.id;
     (async () => {
-      const showMechanic = profile.role === 'mechanic' || profile.role === 'both';
-      const showSeller = profile.role === 'seller' || profile.role === 'both';
+      const showClient = profile.role === 'client';
+      const showSeller = profile.role === 'seller';
 
       const tasks: (() => Promise<void>)[] = [];
 
-      if (showMechanic) {
+      if (showClient) {
         tasks.push(async () => {
           const { data } = await supabase.from('motorcycles').select('*').eq('user_id', userId).order('created_at', { ascending: false });
           setMotos((data as Motorcycle[]) || []);
@@ -46,8 +46,8 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
   if (!profile) return null;
 
-  const showMechanic = profile.role === 'mechanic' || profile.role === 'both';
-  const showSeller = profile.role === 'seller' || profile.role === 'both';
+  const showClient = profile.role === 'client';
+  const showSeller = profile.role === 'seller';
 
   const totalMaintenanceCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
   const activeParts = parts.filter((p) => p.status === 'active' && p.stock > 0).length;
@@ -77,7 +77,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
   const stats: { label: string; value: string; icon: typeof Bike; color: string }[] = [];
 
-  if (showMechanic) {
+  if (showClient) {
     stats.push(
       { label: 'Mis motocicletas', value: String(motos.length), icon: Bike, color: 'text-orange-400' },
       { label: 'Registros de mantenimiento', value: String(records.length), icon: Wrench, color: 'text-cyan-400' },
@@ -91,11 +91,18 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-8">
-        <h1 className="mb-1 break-words text-xl font-bold text-white sm:text-2xl">Hola, {profile.full_name.split(' ')[0]}</h1>
-        <p className="text-slate-400">
-          Rol: <span className="text-orange-400 font-medium">{ROLE_LABELS[profile.role]}</span>
-        </p>
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="mb-1 break-words text-xl font-bold text-white sm:text-2xl">Hola, {profile.full_name.split(' ')[0]}</h1>
+          <p className="text-slate-400">
+            Rol: <span className="text-orange-400 font-medium">{ROLE_LABELS[profile.role]}</span>
+          </p>
+        </div>
+        {showClient && motos.length === 0 && (
+          <button onClick={() => onNavigate('motorcycles')} className="btn-primary shrink-0">
+            <Bike className="h-4 w-4" /> Registrar mi primera moto
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -122,7 +129,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Maintenance suggestions based on user-entered next service targets */}
-            {showMechanic && (
+            {showClient && (
               <div className="card min-w-0 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar className="w-5 h-5 text-orange-400" />
@@ -186,7 +193,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
             )}
 
             {/* Recent maintenance */}
-            {showMechanic && (
+            {showClient && (
               <div className="card min-w-0 p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">

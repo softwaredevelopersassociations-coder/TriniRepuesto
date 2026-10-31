@@ -31,19 +31,19 @@ function AppContent() {
     return <AuthScreen />;
   }
 
-  const showMechanic = profile.role === 'mechanic' || profile.role === 'both';
-  const showSeller = profile.role === 'seller' || profile.role === 'both';
+  const showClient = profile.role === 'client';
+  const showSeller = profile.role === 'seller';
 
   const renderTab = () => {
     switch (activeTab) {
       case 'overview':
         return <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'motorcycles':
-        return showMechanic ? <MotorcyclesView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
+        return showClient ? <MotorcyclesView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'maintenance':
-        return showMechanic ? <MaintenanceView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
+        return showClient ? <MaintenanceView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'marketplace':
-        return <MarketplaceView />;
+        return <MarketplaceView onNavigate={(tab) => setActiveTab(tab as DashTab)} />;
       case 'my-parts':
         return showSeller ? <MyPartsView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'messages':

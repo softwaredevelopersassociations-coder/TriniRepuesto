@@ -1,4 +1,4 @@
-import type { MaintenanceType, PartCategory, PartCondition } from '@/types';
+import type { MaintenanceType, PartCategory, PartCondition, UserRole } from '@/types';
 
 export const MAINTENANCE_TYPES: Record<MaintenanceType, { label: string; icon: string }> = {
   oil_change: { label: 'Cambio de aceite', icon: 'oil' },
@@ -26,8 +26,7 @@ export const PART_CONDITIONS: Record<PartCondition, string> = {
   refurbished: 'Reacondicionado',
 };
 
-export const ROLE_LABELS: Record<string, string> = {
-  mechanic: 'Mecánico / Mantenedor',
+export const ROLE_LABELS: Record<UserRole, string> = {
+  client: 'Cliente',
   seller: 'Vendedor de repuestos',
-  both: 'Mecánico y Vendedor',
 };

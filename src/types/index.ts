@@ -1,4 +1,4 @@
-export type UserRole = 'mechanic' | 'seller' | 'both';
+export type UserRole = 'client' | 'seller';
 
 export type Profile = {
   id: string;
@@ -71,9 +71,12 @@ export type Part = {
   compatible_motorcycles: string;
   category: PartCategory;
   brand: string | null;
+  sku?: string | null;
   condition: PartCondition;
+  purchase_cost?: number;
   price: number;
   stock: number;
+  minimum_stock?: number;
   image_url: string | null;
   status: PartStatus;
   created_at: string;

@@ -7,7 +7,7 @@ import {
   Wrench,
   Store,
   LogOut,
-  Calendar,
+  Package,
   LayoutGrid,
   UserCircle,
   MessageSquare,
@@ -168,8 +168,8 @@ export default function DashboardLayout({
 
   if (!profile) return null;
 
-  const showMechanic = profile.role === 'mechanic' || profile.role === 'both';
-  const showSeller = profile.role === 'seller' || profile.role === 'both';
+  const showClient = profile.role === 'client';
+  const showSeller = profile.role === 'seller';
 
   const toggleMessageSound = () => {
     const enabled = !soundEnabledRef.current;
@@ -185,7 +185,7 @@ export default function DashboardLayout({
 
   const navItems: NavItem[] = [{ key: 'overview', label: 'Resumen', icon: LayoutGrid }];
 
-  if (showMechanic) {
+  if (showClient) {
     navItems.push(
       { key: 'motorcycles', label: 'Mis motos', icon: Bike },
       { key: 'maintenance', label: 'Mantenimiento', icon: Wrench }
@@ -195,7 +195,7 @@ export default function DashboardLayout({
   navItems.push({ key: 'marketplace', label: 'Marketplace', icon: Store });
 
   if (showSeller) {
-    navItems.push({ key: 'my-parts', label: 'Mis repuestos', icon: Calendar });
+    navItems.push({ key: 'my-parts', label: 'Inventario', icon: Package });
   }
 
   navItems.push({

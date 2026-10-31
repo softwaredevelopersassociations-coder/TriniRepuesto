@@ -25,7 +25,7 @@ export default function ProfileView() {
     store_longitude: null as number | null,
     business_name: '',
     business_details: '',
-    role: 'mechanic' as UserRole,
+    role: 'client' as UserRole,
   });
 
   if (!profile) return null;
@@ -77,17 +77,21 @@ export default function ProfileView() {
         full_name: form.full_name,
         phone: form.phone || null,
         carnet: form.carnet || null,
-        store_location: form.store_location || null,
-        store_latitude: form.store_latitude,
-        store_longitude: form.store_longitude,
-        business_name: form.role === 'seller' || form.role === 'both' ? form.business_name.trim() || null : null,
-        business_details: form.role === 'seller' || form.role === 'both' ? form.business_details.trim() || null : null,
         role: form.role,
+        ...(form.role === 'seller' ? {
+          store_location: form.store_location || null,
+          store_latitude: form.store_latitude,
+          store_longitude: form.store_longitude,
+          business_name: form.business_name.trim() || null,
+          business_details: form.business_details.trim() || null,
+        } : {}),
       })
       .eq('id', profile.id);
 
     if (updateError) {
-      setError(updateError.message);
+      setError(updateError.message.includes('profiles_role_check')
+        ? 'Tu base de datos todavía no acepta el perfil Cliente. Aplica la migración 20261031000000_convert_profiles_to_clients.sql en Supabase.'
+        : updateError.message);
     } else {
       await refreshProfile();
       setEditing(false);
@@ -95,7 +99,7 @@ export default function ProfileView() {
     setSaving(false);
   };
 
-  const roleIcon = profile.role === 'mechanic' ? Wrench : profile.role === 'seller' ? Store : Bike;
+  const roleIcon = profile.role === 'client' ? User : Store;
 
   return (
     <div className="animate-fade-in">
@@ -179,27 +183,29 @@ export default function ProfileView() {
 
       {/* Details grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="card min-w-0 p-4 sm:p-5">
+        <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <Mail className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Correo</span>
           </div>
           <p className="text-sm text-slate-200">{profile.email}</p>
         </div>
-          <div className="card min-w-0 p-4 sm:p-5">
+        <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <Phone className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Teléfono</span>
           </div>
           <p className="text-sm text-slate-200">{profile.phone || 'No registrado'}</p>
         </div>
-          <div className="card min-w-0 p-4 sm:p-5">
+        <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <IdCard className="w-4 h-4 text-slate-500" />
             <span className="label mb-0">Carnet</span>
           </div>
           <p className="text-sm text-slate-200">{profile.carnet || 'No registrado'}</p>
         </div>
+        {profile.role === 'seller' && (
+          <>
           <div className="card min-w-0 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2">
             <MapPinned className="w-4 h-4 text-slate-500" />
@@ -218,14 +224,12 @@ export default function ProfileView() {
               <MapPin className="h-3 w-3" /> Abrir en Google Maps
             </a>
           )}
-        </div>
-        <StoreMapPreview
-          address={profile.store_location}
-          latitude={profile.store_latitude}
-          longitude={profile.store_longitude}
-        />
-        {(profile.role === 'seller' || profile.role === 'both') && (
-          <>
+          </div>
+          <StoreMapPreview
+            address={profile.store_location}
+            latitude={profile.store_latitude}
+            longitude={profile.store_longitude}
+          />
             <div className="card min-w-0 p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Store className="w-4 h-4 text-slate-500" />
@@ -282,7 +286,7 @@ export default function ProfileView() {
                   <input className="input pl-10" value={form.carnet} onChange={(e) => setForm({ ...form, carnet: e.target.value })} placeholder="12345678" />
                 </div>
               </div>
-              <div>
+              {form.role === 'seller' && <div>
                 <LocationPicker
                   address={form.store_location}
                   latitude={form.store_latitude}
@@ -290,14 +294,13 @@ export default function ProfileView() {
                   onAddressChange={(store_location) => setForm((current) => ({ ...current, store_location }))}
                   onCoordinatesChange={(store_latitude, store_longitude) => setForm((current) => ({ ...current, store_latitude, store_longitude }))}
                 />
-              </div>
+              </div>}
               <div>
                 <label className="label">Rol</label>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-2">
                   {([
-                    { val: 'mechanic', label: 'Mantenimiento', icon: Wrench },
+                    { val: 'client', label: 'Cliente', icon: User },
                     { val: 'seller', label: 'Vender', icon: Store },
-                    { val: 'both', label: 'Ambos', icon: Bike },
                   ] as const).map(({ val, label, icon: Icon }) => (
                     <button
                       key={val}
@@ -315,7 +318,7 @@ export default function ProfileView() {
                   ))}
                 </div>
               </div>
-              {(form.role === 'seller' || form.role === 'both') && (
+              {form.role === 'seller' && (
                 <>
                   <div>
                     <label className="label">Nombre del negocio</label>
