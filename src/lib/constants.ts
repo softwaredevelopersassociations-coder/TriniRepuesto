@@ -1,13 +1,4 @@
-import type { MaintenanceType, PartCategory, PartCondition, UserRole } from '@/types';
-
-export const MAINTENANCE_TYPES: Record<MaintenanceType, { label: string; icon: string }> = {
-  oil_change: { label: 'Cambio de aceite', icon: 'oil' },
-  chain_adjustment: { label: 'Ajuste de cadena', icon: 'chain' },
-  tire_change: { label: 'Cambio de llantas', icon: 'tire' },
-  brake_service: { label: 'Servicio de frenos', icon: 'brake' },
-  general: { label: 'Mantenimiento general', icon: 'general' },
-  other: { label: 'Otro', icon: 'other' },
-};
+import type { PartCategory, PartCondition, UserRole } from '@/types';
 
 export const PART_CATEGORIES: Record<PartCategory, string> = {
   engine: 'Motor',

@@ -4,7 +4,6 @@ import { ROLE_LABELS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import {
   Bike,
-  Wrench,
   Store,
   LogOut,
   Package,
@@ -19,7 +18,6 @@ import { playMessageSound, unlockMessageAudio } from '@/lib/messageSound';
 export type DashTab =
   | 'overview'
   | 'motorcycles'
-  | 'maintenance'
   | 'marketplace'
   | 'my-parts'
   | 'messages'
@@ -186,10 +184,7 @@ export default function DashboardLayout({
   const navItems: NavItem[] = [{ key: 'overview', label: 'Resumen', icon: LayoutGrid }];
 
   if (showClient) {
-    navItems.push(
-      { key: 'motorcycles', label: 'Mis motos', icon: Bike },
-      { key: 'maintenance', label: 'Mantenimiento', icon: Wrench }
-    );
+    navItems.push({ key: 'motorcycles', label: 'Mis motos', icon: Bike });
   }
 
   navItems.push({ key: 'marketplace', label: 'Marketplace', icon: Store });

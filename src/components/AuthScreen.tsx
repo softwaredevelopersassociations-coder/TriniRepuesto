@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Wrench, Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard, MapPin, Eye, EyeOff } from 'lucide-react';
+import { Store, User, Mail, Lock, Phone, ArrowRight, Bike, IdCard, MapPin, Eye, EyeOff } from 'lucide-react';
 import type { UserRole } from '@/types';
 import LocationPicker from './LocationPicker';
 import AuthBackdrop from './AuthBackdrop';
@@ -87,12 +87,12 @@ export default function AuthScreen() {
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-orange-200/90">Desde Trinidad, Bolivia</p>
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">TriniRepuesto</h1>
           <p className="text-slate-200 text-lg mb-8 drop-shadow">
-            Mantenimiento y repuestos para motocicletas en un solo lugar
+            Motos y repuestos para motocicletas en un solo lugar
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <div className="bg-slate-950/50 backdrop-blur-xl rounded-xl p-4 border border-white/15 shadow-xl">
-              <Wrench className="w-8 h-8 text-orange-400 mb-2" />
-              <p className="text-white text-sm font-medium">Gestiona el mantenimiento de tus motos</p>
+              <Bike className="w-8 h-8 text-orange-400 mb-2" />
+              <p className="text-white text-sm font-medium">Registra tus motos y encuentra repuestos compatibles</p>
             </div>
             <div className="bg-slate-950/50 backdrop-blur-xl rounded-xl p-4 border border-white/15 shadow-xl">
               <Store className="w-8 h-8 text-cyan-400 mb-2" />

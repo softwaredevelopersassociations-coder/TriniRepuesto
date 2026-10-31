@@ -1,8 +1,8 @@
 # TriniRepuesto
 
-Aplicación web para clientes que registran sus motocicletas y llevan su historial de mantenimiento, además de vendedores que publican repuestos. Incluye marketplace, mensajería y gestión de productos.
+Aplicación web para clientes que registran sus motocicletas y buscan repuestos compatibles, además de vendedores que publican y gestionan su inventario. Incluye marketplace y mensajería.
 
-Los perfiles disponibles son **Cliente** (motos y mantenimiento) y **Vender** (publicaciones y gestión de repuestos). Ambos pueden usar el marketplace y los mensajes.
+Los perfiles disponibles son **Cliente** (registro de motos) y **Vender** (publicaciones y gestión de inventario). Ambos pueden usar el marketplace y los mensajes.
 
 ## Requisitos
 

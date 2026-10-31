@@ -4,7 +4,6 @@ import AuthScreen from '@/components/AuthScreen';
 import DashboardLayout, { type DashTab } from '@/components/DashboardLayout';
 import Overview from '@/components/Overview';
 import MotorcyclesView from '@/components/MotorcyclesView';
-import MaintenanceView from '@/components/MaintenanceView';
 import MarketplaceView from '@/components/MarketplaceView';
 import MyPartsView from '@/components/MyPartsView';
 import MessagesView from '@/components/MessagesView';
@@ -40,8 +39,6 @@ function AppContent() {
         return <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'motorcycles':
         return showClient ? <MotorcyclesView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
-      case 'maintenance':
-        return showClient ? <MaintenanceView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'marketplace':
         return <MarketplaceView onNavigate={(tab) => setActiveTab(tab as DashTab)} />;
       case 'my-parts':

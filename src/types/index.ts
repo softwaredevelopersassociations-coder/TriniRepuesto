@@ -28,28 +28,6 @@ export type Motorcycle = {
   created_at: string;
 };
 
-export type MaintenanceType =
-  | 'oil_change'
-  | 'chain_adjustment'
-  | 'tire_change'
-  | 'brake_service'
-  | 'general'
-  | 'other';
-
-export type MaintenanceRecord = {
-  id: string;
-  motorcycle_id: string;
-  user_id: string;
-  type: MaintenanceType;
-  description: string;
-  cost: number | null;
-  mileage_at_service: number | null;
-  service_date: string;
-  next_service_mileage: number | null;
-  next_service_date: string | null;
-  created_at: string;
-};
-
 export type PartCategory =
   | 'engine'
   | 'transmission'

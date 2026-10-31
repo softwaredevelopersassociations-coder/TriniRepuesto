@@ -99,7 +99,7 @@ export default function MotorcyclesView() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('¿Eliminar esta motocicleta y todos sus registros de mantenimiento?')) return;
+    if (!confirm('¿Eliminar esta motocicleta?')) return;
     await supabase.from('motorcycles').delete().eq('id', id);
     load();
   };

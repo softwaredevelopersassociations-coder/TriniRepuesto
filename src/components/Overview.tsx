@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
-import { MAINTENANCE_TYPES, ROLE_LABELS } from '@/lib/constants';
-import type { Motorcycle, MaintenanceRecord, Part } from '@/types';
-import { Bike, Wrench, Store, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
+import { ROLE_LABELS } from '@/lib/constants';
+import type { Motorcycle, Part } from '@/types';
+import { AlertCircle, Bike, Store } from 'lucide-react';
 
 export default function Overview({ onNavigate }: { onNavigate: (tab: string) => void }) {
   const { profile } = useAuth();
   const [motos, setMotos] = useState<Motorcycle[]>([]);
-  const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,30 +15,31 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
     if (!profile) return;
     const userId = profile.id;
     (async () => {
-      const showClient = profile.role === 'client';
-      const showSeller = profile.role === 'seller';
-
       const tasks: (() => Promise<void>)[] = [];
 
-      if (showClient) {
+      if (profile.role === 'client') {
         tasks.push(async () => {
-          const { data } = await supabase.from('motorcycles').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+          const { data } = await supabase
+            .from('motorcycles')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
           setMotos((data as Motorcycle[]) || []);
-        });
-        tasks.push(async () => {
-          const { data } = await supabase.from('maintenance_records').select('*').eq('user_id', userId).order('service_date', { ascending: false });
-          setRecords((data as MaintenanceRecord[]) || []);
         });
       }
 
-      if (showSeller) {
+      if (profile.role === 'seller') {
         tasks.push(async () => {
-          const { data } = await supabase.from('parts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+          const { data } = await supabase
+            .from('parts')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
           setParts((data as Part[]) || []);
         });
       }
 
-      await Promise.all(tasks.map((t) => t()));
+      await Promise.all(tasks.map((task) => task()));
       setLoading(false);
     })();
   }, [profile]);
@@ -48,54 +48,28 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
   const showClient = profile.role === 'client';
   const showSeller = profile.role === 'seller';
-
-  const totalMaintenanceCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
-  const activeParts = parts.filter((p) => p.status === 'active' && p.stock > 0).length;
-  const today = new Date();
-  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const soonDate = new Date(todayDate);
-  soonDate.setDate(soonDate.getDate() + 30);
-  const mostRecentByService = new Map<string, MaintenanceRecord>();
-  records.forEach((record) => {
-    const key = `${record.motorcycle_id}:${record.type}`;
-    const existing = mostRecentByService.get(key);
-    if (!existing || record.service_date > existing.service_date) mostRecentByService.set(key, record);
-  });
-  const serviceSuggestions = [...mostRecentByService.values()].flatMap((record) => {
-    const motorcycle = motos.find((m) => m.id === record.motorcycle_id);
-    const date = record.next_service_date ? new Date(`${record.next_service_date}T00:00:00`) : null;
-    const remainingKm = record.next_service_mileage != null && motorcycle
-      ? record.next_service_mileage - motorcycle.mileage
-      : null;
-    const overdue = Boolean((date && date <= todayDate) || (remainingKm != null && remainingKm <= 0));
-    const dueSoon = Boolean(
-      (date && date > todayDate && date <= soonDate) ||
-      (remainingKm != null && remainingKm > 0 && remainingKm <= 500),
-    );
-    return overdue || dueSoon ? [{ record, motorcycle, overdue, remainingKm }] : [];
-  }).sort((a, b) => Number(b.overdue) - Number(a.overdue));
-
+  const activeParts = parts.filter((part) => part.status === 'active' && part.stock > 0).length;
   const stats: { label: string; value: string; icon: typeof Bike; color: string }[] = [];
 
   if (showClient) {
-    stats.push(
-      { label: 'Mis motocicletas', value: String(motos.length), icon: Bike, color: 'text-orange-400' },
-      { label: 'Registros de mantenimiento', value: String(records.length), icon: Wrench, color: 'text-cyan-400' },
-      { label: 'Gasto total en mantenimiento', value: `$${totalMaintenanceCost.toLocaleString()}`, icon: TrendingUp, color: 'text-green-400' },
-    );
+    stats.push({ label: 'Mis motocicletas', value: String(motos.length), icon: Bike, color: 'text-orange-400' });
   }
   if (showSeller) {
-    stats.push({ label: 'Repuestos publicados', value: String(parts.length), icon: Store, color: 'text-purple-400' });
-    stats.push({ label: 'Repuestos activos', value: String(activeParts), icon: AlertCircle, color: 'text-yellow-400' });
+    stats.push(
+      { label: 'Repuestos publicados', value: String(parts.length), icon: Store, color: 'text-purple-400' },
+      { label: 'Repuestos activos', value: String(activeParts), icon: AlertCircle, color: 'text-yellow-400' },
+    );
   }
 
   return (
     <div className="animate-fade-in">
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="mb-1 break-words text-xl font-bold text-white sm:text-2xl">Hola, {profile.full_name.split(' ')[0]}</h1>
+          <h1 className="mb-1 break-words text-xl font-bold text-white sm:text-2xl">
+            Hola, {profile.full_name.split(' ')[0]}
+          </h1>
           <p className="text-slate-400">
-            Rol: <span className="text-orange-400 font-medium">{ROLE_LABELS[profile.role]}</span>
+            Rol: <span className="font-medium text-orange-400">{ROLE_LABELS[profile.role]}</span>
           </p>
         </div>
         {showClient && motos.length === 0 && (
@@ -107,130 +81,101 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
         </div>
       ) : (
         <>
-          {/* Stats grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
                 <div key={stat.label} className="card p-4 transition hover:border-slate-700 sm:p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <Icon className={`w-7 h-7 ${stat.color}`} />
+                  <div className="mb-3 flex items-start justify-between">
+                    <Icon className={`h-7 w-7 ${stat.color}`} />
                   </div>
                   <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
+                  <p className="mt-1 text-sm text-slate-400">{stat.label}</p>
                 </div>
               );
             })}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Maintenance suggestions based on user-entered next service targets */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {showClient && (
-              <div className="card min-w-0 p-4 sm:p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Calendar className="w-5 h-5 text-orange-400" />
-                  <h2 className="text-lg font-semibold text-white">Sugerencias de mantenimiento</h2>
+              <section className="card min-w-0 p-4 sm:p-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Bike className="h-5 w-5 text-orange-400" />
+                    <h2 className="text-lg font-semibold text-white">Mis motocicletas</h2>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('motorcycles')}
+                    className="shrink-0 text-xs font-medium text-orange-400 hover:text-orange-300"
+                  >
+                    Ver todas
+                  </button>
                 </div>
-                {serviceSuggestions.length === 0 ? (
-                  <p className="text-sm text-slate-500 py-6 text-center">No hay servicios próximos. Al registrar un mantenimiento, indica la fecha o kilometraje para la siguiente revisión.</p>
+                {motos.length === 0 ? (
+                  <div className="py-6 text-center">
+                    <p className="mb-4 text-sm text-slate-500">Registra tus motos para encontrar repuestos compatibles.</p>
+                    <button onClick={() => onNavigate('motorcycles')} className="btn-primary mx-auto">
+                      <Bike className="h-4 w-4" /> Registrar moto
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-y-3">
-                    {serviceSuggestions.slice(0, 5).map(({ record, motorcycle, overdue, remainingKm }) => (
-                        <div key={record.id} className="flex flex-col gap-2 rounded-lg bg-slate-800/50 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-slate-200">{MAINTENANCE_TYPES[record.type].label}</p>
-                            <p className="text-xs text-slate-500">{motorcycle ? `${motorcycle.brand} ${motorcycle.model}` : 'Moto'} · {record.description}</p>
-                            <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-400">
-                              {record.next_service_date && <span>Fecha: {new Date(`${record.next_service_date}T00:00:00`).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' })}</span>}
-                              {record.next_service_mileage != null && <span>{remainingKm != null && remainingKm > 0 ? `En ${remainingKm.toLocaleString()} km` : `Km objetivo: ${record.next_service_mileage.toLocaleString()}`}</span>}
-                            </div>
-                          </div>
-                          <span className={`badge shrink-0 ${overdue ? 'bg-red-500/10 text-red-400' : 'bg-orange-500/10 text-orange-400'}`}>
-                            {overdue ? 'Revisión pendiente' : 'Próxima revisión'}
-                          </span>
+                    {motos.slice(0, 4).map((motorcycle) => (
+                      <div key={motorcycle.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-slate-200">
+                            {motorcycle.brand} {motorcycle.model}
+                          </p>
+                          <p className="text-xs text-slate-500">{motorcycle.year}</p>
                         </div>
+                        <span className="shrink-0 text-sm text-slate-400">
+                          {motorcycle.mileage.toLocaleString()} km
+                        </span>
+                      </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </section>
             )}
 
-            {/* Recent parts */}
             {showSeller && (
-              <div className="card min-w-0 p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
+              <section className="card min-w-0 p-4 sm:p-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Store className="w-5 h-5 text-cyan-400" />
+                    <Store className="h-5 w-5 text-cyan-400" />
                     <h2 className="text-lg font-semibold text-white">Mis repuestos recientes</h2>
                   </div>
                   <button
                     onClick={() => onNavigate('my-parts')}
-                    className="text-xs text-orange-400 hover:text-orange-300 font-medium"
+                    className="shrink-0 text-xs font-medium text-orange-400 hover:text-orange-300"
                   >
                     Ver todos
                   </button>
                 </div>
                 {parts.length === 0 ? (
-                  <p className="text-sm text-slate-500 py-6 text-center">Aún no has publicado repuestos</p>
+                  <p className="py-6 text-center text-sm text-slate-500">Aún no has publicado repuestos</p>
                 ) : (
                   <div className="space-y-3">
-                    {parts.slice(0, 4).map((p) => (
-                      <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
+                    {parts.slice(0, 4).map((part) => (
+                      <div key={part.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-200">{p.title}</p>
-                          <p className="text-xs text-slate-500">{p.condition === 'new' ? 'Nuevo' : p.condition === 'used' ? 'Usado' : 'Reacondicionado'}</p>
+                          <p className="truncate text-sm font-medium text-slate-200">{part.title}</p>
+                          <p className="text-xs text-slate-500">
+                            {part.condition === 'new' ? 'Nuevo' : part.condition === 'used' ? 'Usado' : 'Reacondicionado'}
+                          </p>
                         </div>
-                        <span className="text-sm font-semibold text-green-400">${p.price.toLocaleString()}</span>
+                        <span className="shrink-0 text-sm font-semibold text-green-400">
+                          ${part.price.toLocaleString()}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Recent maintenance */}
-            {showClient && (
-              <div className="card min-w-0 p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Wrench className="w-5 h-5 text-cyan-400" />
-                    <h2 className="text-lg font-semibold text-white">Mantenimientos recientes</h2>
-                  </div>
-                  <button
-                    onClick={() => onNavigate('maintenance')}
-                    className="text-xs text-orange-400 hover:text-orange-300 font-medium"
-                  >
-                    Ver todos
-                  </button>
-                </div>
-                {records.length === 0 ? (
-                  <p className="text-sm text-slate-500 py-6 text-center">No hay registros de mantenimiento</p>
-                ) : (
-                  <div className="space-y-3">
-                    {records.slice(0, 4).map((r) => {
-                      const moto = motos.find((m) => m.id === r.motorcycle_id);
-                      return (
-                        <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-800/50 p-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-slate-200">{r.description}</p>
-                            <p className="text-xs text-slate-500">
-                              {moto ? `${moto.brand} ${moto.model}` : ''} ·{' '}
-                              {new Date(r.service_date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}
-                            </p>
-                          </div>
-                          {r.cost != null && (
-                            <span className="text-sm font-semibold text-green-400">${r.cost.toLocaleString()}</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              </section>
             )}
           </div>
         </>
