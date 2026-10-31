@@ -118,6 +118,14 @@ export default function MessagesView() {
     if (offset > 0) setLoadingOlderConversations(false);
   };
 
+  const scheduleConversationRefresh = () => {
+    if (conversationRefreshTimer.current) return;
+    conversationRefreshTimer.current = setTimeout(() => {
+      conversationRefreshTimer.current = null;
+      void load(0, true);
+    }, 250);
+  };
+
   useEffect(() => {
     if (!profile) return;
     load();
@@ -127,10 +135,7 @@ export default function MessagesView() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         const message = payload.new as { conversation_id: string; sender_id: string; created_at: string };
         if (!knownConversationIds.current.has(message.conversation_id) && !conversationRefreshTimer.current) {
-          conversationRefreshTimer.current = setTimeout(() => {
-            conversationRefreshTimer.current = null;
-            void load(0, true);
-          }, 250);
+          scheduleConversationRefresh();
         }
         setConvs((current) => current
           .map((conversation) => conversation.id === message.conversation_id
@@ -143,6 +148,16 @@ export default function MessagesView() {
               }
             : conversation)
           .sort((a, b) => b.last_message_at.localeCompare(a.last_message_at)));
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+        const message = payload.new as {
+          conversation_id: string;
+          sender_id: string;
+          read_at: string | null;
+        };
+        if (message.sender_id !== profile.id && message.read_at) {
+          scheduleConversationRefresh();
+        }
       })
       .subscribe();
 
