@@ -4,7 +4,8 @@ import { useAuth } from '@/context/AuthContext';
 import { uploadFile } from '@/lib/storage';
 import type { Part, PartCategory, PartCondition, PartStatus } from '@/types';
 import { PART_CATEGORIES, PART_CONDITIONS } from '@/lib/constants';
-import { Store, Plus, Trash2, X, Loader2, Pencil, Package, DollarSign, Upload, ImageIcon, Search, Filter, Boxes, Eye, EyeOff, TriangleAlert } from 'lucide-react';
+import { Store, Plus, Trash2, X, Loader2, Pencil, Package, Upload, ImageIcon, Search, Filter, Boxes, Eye, EyeOff, CheckCircle2, TriangleAlert } from 'lucide-react';
+import { formatCurrency } from '@/lib/currency';
 
 export default function MyPartsView() {
   const { profile } = useAuth();
@@ -19,6 +20,7 @@ export default function MyPartsView() {
   const [categoryFilter, setCategoryFilter] = useState<PartCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<PartStatus | 'all'>('all');
   const [activeSection, setActiveSection] = useState<'products' | 'sales'>('products');
+  const stockPublicationError = 'Para publicar el producto, agrega al menos una unidad en stock.';
 
   const emptyForm = {
     sku: '',
@@ -33,7 +35,6 @@ export default function MyPartsView() {
     stock: '1',
     minimum_stock: '0',
     image_url: '',
-    status: 'inactive' as PartStatus,
   };
   const [form, setForm] = useState(emptyForm);
 
@@ -89,7 +90,6 @@ export default function MyPartsView() {
       stock: String(p.stock),
       minimum_stock: String(p.minimum_stock || 0),
       image_url: p.image_url || '',
-      status: p.status,
     });
     setShowForm(true);
   };
@@ -112,6 +112,7 @@ export default function MyPartsView() {
     const purchaseCost = Number(form.purchase_cost);
     const stock = Number(form.stock);
     const minimumStock = Number(form.minimum_stock);
+    const statusToSave: PartStatus = editing ? editing.status : 'active';
     if (!Number.isFinite(price) || price < 0) {
       setError('Ingresa un precio válido, igual o mayor que cero.');
       return;
@@ -128,8 +129,8 @@ export default function MyPartsView() {
       setError('El stock mínimo debe ser un número entero igual o mayor que cero.');
       return;
     }
-    if (form.status === 'active' && stock < 1) {
-      setError('Para publicar el producto, agrega al menos una unidad en stock.');
+    if (statusToSave === 'active' && stock < 1) {
+      setError(stockPublicationError);
       return;
     }
     setSaving(true);
@@ -146,7 +147,7 @@ export default function MyPartsView() {
       price,
       stock,
       image_url: form.image_url || null,
-      status: form.status,
+      status: statusToSave,
     };
 
     let partId = editing?.id;
@@ -255,7 +256,7 @@ export default function MyPartsView() {
         {activeSection === 'products' && (
           <button onClick={openAdd} className="btn-primary">
             <Plus className="w-4 h-4" />
-            Agregar producto
+            Publicar producto
           </button>
         )}
       </div>
@@ -278,7 +279,7 @@ export default function MyPartsView() {
             onClick={() => setActiveSection('sales')}
             className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === 'sales' ? 'bg-slate-800 text-orange-400 shadow-sm ring-1 ring-inset ring-orange-500/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
           >
-            <DollarSign className="h-4 w-4" />
+            <span aria-hidden="true" className="inline-flex h-5 min-w-7 items-center justify-center rounded bg-slate-700/70 px-1 text-[10px] font-bold text-current">Bs</span>
             Ventas
           </button>
         </div>
@@ -292,7 +293,7 @@ export default function MyPartsView() {
         <InventoryMetric icon={Boxes} label="Productos" value={String(parts.length)} />
         <InventoryMetric icon={Package} label="Unidades disponibles" value={String(totalUnits)} />
         <InventoryMetric icon={TriangleAlert} label="En nivel mínimo" value={String(lowStockCount)} warning={lowStockCount > 0} />
-        <InventoryMetric icon={DollarSign} label="Costo del inventario" value={`$${inventoryCost.toLocaleString()}`} />
+        <InventoryMetric currencyUnit label="Costo total del inventario" value={formatCurrency(inventoryCost)} />
       </div>
 
       {parts.length === 0 ? (
@@ -301,7 +302,7 @@ export default function MyPartsView() {
           <p className="text-slate-400 mb-4">Tu inventario está vacío</p>
           <button onClick={openAdd} className="btn-primary mx-auto">
             <Plus className="w-4 h-4" />
-            Agregar el primer producto
+            Publicar primer producto
           </button>
         </div>
       ) : (
@@ -340,7 +341,7 @@ export default function MyPartsView() {
                 )}
                 <div className="absolute top-2 left-2">{statusBadge(p.status)}</div>
                 <div className="absolute top-2 right-2 flex gap-1 transition">
-                  {p.status !== 'active' && p.status !== 'sold' && (
+                  {p.status !== 'active' && (
                     <button onClick={() => updateStatus(p, 'active')} disabled={p.stock < 1} title="Publicar en marketplace" aria-label={`Publicar ${p.title}`} className="rounded-lg bg-slate-900/80 p-1.5 text-slate-300 backdrop-blur hover:text-green-400 disabled:opacity-40">
                       <Eye className="h-3.5 w-3.5" />
                     </button>
@@ -348,6 +349,11 @@ export default function MyPartsView() {
                   {p.status === 'active' && (
                     <button onClick={() => updateStatus(p, 'inactive')} title="Retirar del marketplace" aria-label={`Retirar ${p.title} del marketplace`} className="rounded-lg bg-slate-900/80 p-1.5 text-slate-300 backdrop-blur hover:text-yellow-400">
                       <EyeOff className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  {p.status !== 'sold' && (
+                    <button onClick={() => updateStatus(p, 'sold')} title="Marcar como vendido" aria-label={`Marcar ${p.title} como vendido`} className="rounded-lg bg-slate-900/80 p-1.5 text-slate-300 backdrop-blur hover:text-orange-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                   <button onClick={() => openEdit(p)} title="Editar producto" aria-label={`Editar ${p.title}`} className="p-1.5 bg-slate-900/80 rounded-lg text-slate-300 hover:text-cyan-400 backdrop-blur">
@@ -363,13 +369,10 @@ export default function MyPartsView() {
                 <h3 className="font-semibold text-white truncate">{p.title}</h3>
                 {p.sku && <p className="mt-1 text-xs text-slate-500">Código: {p.sku}</p>}
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-lg font-bold text-green-400 flex items-center gap-0.5">
-                    <DollarSign className="w-4 h-4" />
-                    {p.price.toLocaleString()}
-                  </span>
+                  <span className="text-lg font-bold text-green-400">{formatCurrency(p.price)}</span>
                   <span className={`text-xs ${p.stock <= (p.minimum_stock ?? 0) && p.status !== 'sold' ? 'font-semibold text-amber-400' : 'text-slate-500'}`}>Stock: {p.stock} / mínimo {p.minimum_stock ?? 0}</span>
                 </div>
-                <p className="mt-1 text-xs text-slate-500">Costo: ${(p.purchase_cost ?? 0).toLocaleString()} · Total: ${(p.stock * (p.purchase_cost ?? 0)).toLocaleString()}</p>
+                <p className="mt-1 text-xs text-slate-500">Costo: {formatCurrency(p.purchase_cost ?? 0)} · Total: {formatCurrency(p.stock * (p.purchase_cost ?? 0))}</p>
                 {p.compatible_motorcycles && <p className="mt-2 truncate text-xs text-slate-500">Compatible: {p.compatible_motorcycles}</p>}
               </div>
             </div>
@@ -382,7 +385,7 @@ export default function MyPartsView() {
       ) : (
         <section aria-labelledby="sales-section-title" className="card p-6 text-center sm:p-12">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10">
-            <DollarSign className="h-7 w-7 text-orange-400" />
+            <span aria-hidden="true" className="text-lg font-bold text-orange-400">Bs</span>
           </div>
           <h2 id="sales-section-title" className="mb-2 text-lg font-semibold text-white">Ventas</h2>
           <p className="mx-auto max-w-md text-sm text-slate-400">La gestión de ventas se habilitará posteriormente.</p>
@@ -398,12 +401,12 @@ export default function MyPartsView() {
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowForm(false)}>
           <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-white">{editing ? 'Editar producto' : 'Agregar al inventario'}</h2>
+              <h2 className="text-lg font-bold text-white">{editing ? 'Editar producto' : 'Publicar producto'}</h2>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            {error && <div role="alert" className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</div>}
+            {error && error !== stockPublicationError && <div role="alert" className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</div>}
             <form onSubmit={save} className="space-y-4">
               {/* Photo upload */}
               <div>
@@ -446,10 +449,6 @@ export default function MyPartsView() {
               </div>
 
               <div>
-                <label className="label">Código interno / SKU (opcional)</label>
-                <input className="input" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="REP-0001" />
-              </div>
-              <div>
                 <label className="label">Título</label>
                 <input className="input" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Llanta delantera Pirelli" />
               </div>
@@ -476,39 +475,43 @@ export default function MyPartsView() {
                   <input className="input" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Pirelli" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                <div>
-                  <label className="label">Condición</label>
-                  <select className="input" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value as PartCondition })}>
-                    {Object.entries(PART_CONDITIONS).map(([val, label]) => (
-                      <option key={val} value={val}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="label">Visibilidad</label>
-                  <select className="input" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as PartStatus })}>
-                    <option value="inactive">Guardar solo en inventario</option>
-                    <option value="active">Publicar en marketplace</option>
-                    <option value="sold">Vendido</option>
-                  </select>
-                  <p className="mt-1 text-xs text-slate-500">Los productos guardados solo en inventario no aparecen en el marketplace.</p>
-                </div>
+              <div>
+                <label className="label">Condición</label>
+                <select className="input" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value as PartCondition })}>
+                  {Object.entries(PART_CONDITIONS).map(([val, label]) => (
+                    <option key={val} value={val}>{label}</option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
-                  <label className="label">Precio de venta ($)</label>
+                  <label className="label">Precio de venta (Bs)</label>
                   <input className="input" type="number" min="0" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0" />
                 </div>
                 <div>
-                  <label className="label">Costo de compra ($)</label>
+                  <label className="label">Costo de compra (Bs)</label>
                   <input className="input" type="number" min="0" step="0.01" required value={form.purchase_cost} onChange={(e) => setForm({ ...form, purchase_cost: e.target.value })} placeholder="0" />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div>
                   <label className="label">Unidades en stock</label>
-                  <input className="input" type="number" min="0" step="1" required value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} placeholder="1" />
+                  <input
+                    className={`input ${error === stockPublicationError ? 'border-red-500 focus:border-red-500' : ''}`}
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value={form.stock}
+                    aria-invalid={error === stockPublicationError}
+                    aria-describedby={error === stockPublicationError ? 'publish-stock-error' : undefined}
+                    onChange={(e) => {
+                      setForm({ ...form, stock: e.target.value });
+                      if (error === stockPublicationError) setError(null);
+                    }}
+                    placeholder="1"
+                  />
+                  {error === stockPublicationError && <p id="publish-stock-error" role="alert" className="mt-1 text-xs text-red-400">{error}</p>}
                 </div>
                 <div>
                   <label className="label">Avisar con stock mínimo</label>
@@ -516,7 +519,7 @@ export default function MyPartsView() {
                 </div>
               </div>
               <button type="submit" disabled={saving || uploadingPhoto} className="btn-primary w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editing ? 'Guardar cambios' : form.status === 'active' ? 'Guardar y publicar' : 'Guardar en inventario'}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editing ? 'Guardar cambios' : 'Publicar producto'}
               </button>
             </form>
           </div>
@@ -526,11 +529,15 @@ export default function MyPartsView() {
   );
 }
 
-function InventoryMetric({ icon: Icon, label, value, warning = false }: { icon: typeof Boxes; label: string; value: string; warning?: boolean }) {
+function InventoryMetric({ icon: Icon, label, value, warning = false, currencyUnit = false }: { icon?: typeof Boxes; label: string; value: string; warning?: boolean; currencyUnit?: boolean }) {
   return (
     <div className="card min-w-0 p-3 sm:p-4">
       <div className="mb-2 flex items-center gap-2">
-        <Icon className={`h-4 w-4 ${warning ? 'text-amber-400' : 'text-orange-400'}`} />
+        {currencyUnit ? (
+          <span aria-hidden="true" className={`text-xs font-bold ${warning ? 'text-amber-400' : 'text-orange-400'}`}>Bs</span>
+        ) : Icon ? (
+          <Icon className={`h-4 w-4 ${warning ? 'text-amber-400' : 'text-orange-400'}`} />
+        ) : null}
         <span className="truncate text-xs text-slate-400">{label}</span>
       </div>
       <p className={`truncate text-lg font-bold sm:text-xl ${warning ? 'text-amber-300' : 'text-white'}`}>{value}</p>

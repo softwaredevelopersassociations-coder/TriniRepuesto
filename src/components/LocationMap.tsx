@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapPin, Minus, Plus } from 'lucide-react';
+import GoogleMapCanvas from './GoogleMapCanvas';
 
 const TILE_SIZE = 256;
 const DEFAULT_CENTER = { latitude: -16.5, longitude: -68.15 };
@@ -34,7 +35,7 @@ function unproject(point: Point, zoom: number): Center {
   };
 }
 
-export default function LocationMap({ latitude, longitude, onSelect }: Props) {
+function OpenStreetMapPicker({ latitude, longitude, onSelect }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const [size, setSize] = useState({ width: 600, height: 300 });
@@ -207,4 +208,69 @@ export default function LocationMap({ latitude, longitude, onSelect }: Props) {
       </div>
     </div>
   );
+}
+
+function OpenStreetMapFallback({ latitude, longitude, onSelect, message }: Props & { message: string }) {
+  return (
+    <div className="space-y-2">
+      <p role="status" className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-200">
+        {message}
+      </p>
+      <OpenStreetMapPicker latitude={latitude} longitude={longitude} onSelect={onSelect} />
+    </div>
+  );
+}
+
+function GoogleMapsPicker({ latitude, longitude, onSelect }: Props) {
+  const [useFallback, setUseFallback] = useState(false);
+  const selected = latitude !== null && longitude !== null;
+  if (useFallback) {
+    return (
+      <OpenStreetMapFallback
+        latitude={latitude}
+        longitude={longitude}
+        onSelect={onSelect}
+        message="Google Maps no pudo cargarse. Se muestra el mapa alternativo para que puedas guardar tu ubicación."
+      />
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-lg">
+      <div className="flex flex-col gap-2 border-b border-slate-700 bg-slate-900/90 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-white">Ubicación en Google Maps</p>
+          <p className="text-[11px] text-slate-400">Haz clic en el mapa o arrástralo para colocar el pin</p>
+        </div>
+      </div>
+      <GoogleMapCanvas
+        latitude={latitude ?? DEFAULT_CENTER.latitude}
+        longitude={longitude ?? DEFAULT_CENTER.longitude}
+        selected={selected}
+        selectable
+        className="h-64 bg-slate-800 sm:h-80"
+        onSelect={onSelect}
+        onLoadError={() => setUseFallback(true)}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/70 px-3 py-2 text-xs">
+        <span className={`break-all ${selected ? 'text-cyan-300' : 'text-slate-400'}`}>
+          {selected ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` : 'Aún no seleccionas un pin'}
+        </span>
+        <span className="text-slate-500">Google Maps · Mapa interactivo</span>
+      </div>
+    </div>
+  );
+}
+
+export default function LocationMap(props: Props) {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
+  if (!apiKey) {
+    return (
+      <OpenStreetMapFallback
+        {...props}
+        message="Configura VITE_GOOGLE_MAPS_API_KEY para usar Google Maps. Mientras tanto, puedes elegir el pin en el mapa alternativo."
+      />
+    );
+  }
+  return <GoogleMapsPicker {...props} />;
 }

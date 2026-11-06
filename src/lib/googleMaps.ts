@@ -1,5 +1,61 @@
 export type Coordinates = { latitude: number; longitude: number };
 
+type GoogleMapsNamespace = {
+  importLibrary?: (libraryName: 'maps') => Promise<unknown>;
+};
+
+const googleMapsReadyCallback = '__trinirepuestoGoogleMapsReady';
+
+type WindowWithGoogleMaps = Window & {
+  google?: { maps?: GoogleMapsNamespace };
+  __trinirepuestoGoogleMapsReady?: () => void;
+};
+
+let mapsScriptPromise: Promise<void> | null = null;
+
+export async function loadGoogleMapsLibrary() {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
+  if (!apiKey) throw new Error('Falta configurar VITE_GOOGLE_MAPS_API_KEY.');
+
+  const googleMapsWindow = window as WindowWithGoogleMaps;
+  let mapsNamespace = googleMapsWindow.google?.maps;
+
+  if (!mapsNamespace?.importLibrary) {
+    if (!mapsScriptPromise) {
+      mapsScriptPromise = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        const params = new URLSearchParams({
+          key: apiKey,
+          v: 'weekly',
+          loading: 'async',
+          callback: googleMapsReadyCallback,
+          language: 'es-419',
+          region: 'BO',
+        });
+        script.id = 'google-maps-javascript-api';
+        script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+        script.async = true;
+        script.onerror = () => {
+          mapsScriptPromise = null;
+          delete googleMapsWindow[googleMapsReadyCallback];
+          reject(new Error('No se pudo cargar Google Maps JavaScript API.'));
+        };
+        googleMapsWindow[googleMapsReadyCallback] = resolve;
+        document.head.appendChild(script);
+      });
+    }
+    await mapsScriptPromise;
+    delete googleMapsWindow[googleMapsReadyCallback];
+    mapsNamespace = googleMapsWindow.google?.maps;
+  }
+
+  if (!mapsNamespace?.importLibrary) {
+    throw new Error('Google Maps JavaScript API no expuso importLibrary.');
+  }
+
+  await mapsNamespace.importLibrary('maps');
+}
+
 export function parseGoogleMapsCoordinates(value: string): Coordinates | null {
   let decoded = value.trim();
   try {

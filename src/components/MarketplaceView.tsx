@@ -4,13 +4,13 @@ import { useAuth } from '@/context/AuthContext';
 import type { Motorcycle, Part, PartCategory, SellerRating, SellerStats } from '@/types';
 import { PART_CATEGORIES, PART_CONDITIONS } from '@/lib/constants';
 import { googleMapsUrl } from '@/lib/googleMaps';
+import { formatCurrency } from '@/lib/currency';
 import {
   Bike,
   Store,
   Search,
   X,
   Package,
-  DollarSign,
   Tag,
   Filter,
   MessageSquare,
@@ -493,7 +493,7 @@ export default function MarketplaceView({ onNavigate }: { onNavigate: (tab: stri
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-green-400">${p.price.toLocaleString()}</span>
+                    <span className="text-xl font-bold text-green-400">{formatCurrency(p.price)}</span>
                     <span className="text-xs text-slate-500">Stock: {p.stock}</span>
                   </div>
                 </div>
@@ -658,9 +658,8 @@ export default function MarketplaceView({ onNavigate }: { onNavigate: (tab: stri
               {/* Price & Action */}
               <div className="flex flex-col gap-4 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-2xl font-bold text-green-400 flex items-center gap-1">
-                    <DollarSign className="w-5 h-5" />
-                    {selected.price.toLocaleString()}
+                  <p className="text-2xl font-bold text-green-400">
+                    {formatCurrency(selected.price)}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">Stock disponible: {selected.stock} unidad(es)</p>
                 </div>

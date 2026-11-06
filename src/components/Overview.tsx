@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/currency';
 import { useAuth } from '@/context/AuthContext';
 import { ROLE_LABELS } from '@/lib/constants';
 import type { Motorcycle, Part } from '@/types';
@@ -169,7 +170,7 @@ export default function Overview({ onNavigate }: { onNavigate: (tab: string) => 
                           </p>
                         </div>
                         <span className="shrink-0 text-sm font-semibold text-green-400">
-                          ${part.price.toLocaleString()}
+                          {formatCurrency(part.price)}
                         </span>
                       </div>
                     ))}

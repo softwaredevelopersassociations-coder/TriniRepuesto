@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { googleMapsUrl, googleMapsSearchUrl } from '@/lib/googleMaps';
+import GoogleMapCanvas from './GoogleMapCanvas';
 
 type Props = {
   address: string | null;
@@ -10,6 +12,10 @@ type Props = {
 export default function StoreMapPreview({ address, latitude, longitude }: Props) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
   const hasCoordinates = latitude != null && longitude != null;
+  const [googleMapFailed, setGoogleMapFailed] = useState(false);
+
+  useEffect(() => setGoogleMapFailed(false), [apiKey, latitude, longitude]);
+
   const googleMapSrc = apiKey
     ? hasCoordinates || address?.trim()
       ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(address?.trim() || `${latitude},${longitude}`)}${hasCoordinates ? `&center=${latitude},${longitude}` : ''}&zoom=16&maptype=roadmap`
@@ -52,7 +58,15 @@ export default function StoreMapPreview({ address, latitude, longitude }: Props)
         )}
       </div>
 
-      {googleMapSrc ? (
+      {apiKey && hasCoordinates && !googleMapFailed ? (
+        <GoogleMapCanvas
+          latitude={latitude ?? 0}
+          longitude={longitude ?? 0}
+          selected
+          className="h-64 w-full rounded-xl border border-slate-700 sm:h-80"
+          onLoadError={() => setGoogleMapFailed(true)}
+        />
+      ) : googleMapSrc && !hasCoordinates ? (
         <iframe
           title="Ubicación de la tienda en Google Maps"
           src={googleMapSrc}
@@ -70,7 +84,9 @@ export default function StoreMapPreview({ address, latitude, longitude }: Props)
             loading="lazy"
           />
           <p className="mt-2 text-xs text-slate-500">
-            Para mostrar Google Maps aquí, configura la variable VITE_GOOGLE_MAPS_API_KEY en el archivo .env.
+            {googleMapFailed
+              ? 'No se pudo cargar Google Maps. Se muestra un mapa alternativo.'
+              : 'Para mostrar Google Maps aquí, configura VITE_GOOGLE_MAPS_API_KEY en .env y en las variables de entorno de Render.'}
           </p>
         </>
       ) : (

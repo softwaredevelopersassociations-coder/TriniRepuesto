@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/currency';
 import { useAuth } from '@/context/AuthContext';
 import type { Message, Part } from '@/types';
 import { playMessageSound } from '@/lib/messageSound';
@@ -340,7 +341,7 @@ export default function ChatModal({ conversationId, part, otherUser, onClose }: 
           )}
           <div className="min-w-0">
             <p className="text-sm font-medium text-white truncate">{part.title}</p>
-            <p className="text-xs text-green-400 font-semibold">${part.price.toLocaleString()}</p>
+            <p className="text-xs text-green-400 font-semibold">{formatCurrency(part.price)}</p>
           </div>
         </div>
 
