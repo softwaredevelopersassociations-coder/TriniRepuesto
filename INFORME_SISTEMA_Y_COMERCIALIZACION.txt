@@ -1,0 +1,184 @@
+INFORME DEL SISTEMA TRINIREPUESTO
+Descripción, problema que resuelve y propuesta de comercialización
+
+Fecha: 6 de noviembre de 2026
+Producto: TriniRepuesto
+Mercado inicial recomendado: Trinidad, Beni, Bolivia
+
+
+1. RESUMEN EJECUTIVO
+
+TriniRepuesto es una aplicación web para conectar a personas que tienen motocicletas con negocios que venden repuestos. El cliente puede registrar una o más motos, buscar repuestos compatibles y comunicarse con el vendedor. El vendedor puede publicar productos y administrar aspectos de su inventario. El perfil del negocio puede mostrar su ubicación en Google Maps.
+
+La oportunidad comercial más clara es vender el servicio de gestión y visibilidad a tiendas de repuestos, manteniendo gratuito el uso básico para motociclistas. Se recomienda comenzar con un piloto pequeño en Trinidad para comprobar que las tiendas mantienen actualizado su catálogo y que los clientes encuentran productos y contactan a los vendedores. Los precios deben definirse después de entrevistar a negocios locales y medir el valor que reciben.
+
+
+2. ¿QUÉ PROBLEMA RESUELVE?
+
+Para los motociclistas:
+- Encontrar repuestos puede requerir llamar o visitar varios negocios sin saber quién tiene la pieza disponible.
+- A veces es difícil saber si un repuesto corresponde a la marca, modelo y año de la moto.
+- El historial de las motos y sus datos pueden quedar dispersos o depender de notas personales.
+- No siempre es fácil encontrar la dirección del negocio que publica el producto.
+
+Para las tiendas y vendedores:
+- El inventario puede administrarse de forma manual o en varias hojas y conversaciones.
+- Publicar productos en redes sociales no organiza el stock, las categorías ni la compatibilidad.
+- Las consultas de clientes pueden quedar dispersas y ser difíciles de seguir.
+- Los negocios pequeños necesitan una forma sencilla de mostrar su catálogo y ubicación en línea.
+
+TriniRepuesto busca reducir ese tiempo de búsqueda y organizar la relación entre clientes, motos, productos y vendedores en un solo lugar.
+
+
+3. ¿QUÉ OFRECE EL SISTEMA ACTUAL?
+
+Funciones para clientes:
+- Crear una cuenta y mantener un perfil.
+- Registrar motocicletas con marca, modelo, año, kilometraje y fotografía.
+- Buscar repuestos publicados en el marketplace.
+- Filtrar repuestos usando la marca, modelo y año de una moto registrada, según los datos de compatibilidad que ingresa el vendedor.
+- Consultar el perfil y la ubicación del negocio en Google Maps cuando el vendedor la ha configurado.
+- Iniciar conversaciones dentro de la aplicación, ver estados de entrega/lectura disponibles y calificar al vendedor.
+
+Funciones para vendedores:
+- Crear un perfil de negocio.
+- Registrar y administrar productos, fotografías, categorías, costos, precios, existencias y nivel mínimo de stock.
+- Publicar productos en el marketplace o mantenerlos solo en el inventario.
+- Indicar modelos de motocicleta compatibles.
+- Añadir ubicación de tienda y mostrarla en el mapa.
+- Responder a los clientes mediante el chat de la aplicación.
+
+Alcance actual que debe explicarse con claridad:
+- La aplicación facilita la búsqueda y el contacto; no procesa actualmente el pago ni confirma una compra dentro de la plataforma.
+- No incluye actualmente logística propia ni seguimiento de entregas.
+- La mensajería descrita es el chat interno del sistema. No debe presentarse como integración de WhatsApp.
+- El filtro de compatibilidad depende de la información cargada por los vendedores; conviene revisar y completar los catálogos para evitar coincidencias incorrectas.
+- Google Maps muestra la ubicación configurada por el negocio; el vendedor debe mantenerla correcta.
+
+
+4. ¿QUIÉNES SON LOS CLIENTES?
+
+Usuarios principales:
+1. Motociclistas que buscan repuestos para sus motos.
+2. Tiendas de repuestos para motocicletas que desean organizar y promocionar su catálogo.
+3. Como aliados de adquisición, talleres mecánicos, mecánicos independientes, clubes y asociaciones de motociclistas.
+
+El pagador inicial recomendado es la tienda. Los motociclistas deben poder buscar y contactar sin pagar, porque una base activa de compradores también hace más valioso el servicio para los vendedores.
+
+
+5. PROPUESTA DE VALOR
+
+Para el motociclista: “Encuentra repuestos para tu modelo de moto, revisa qué negocios los ofrecen y contáctalos desde un solo lugar”.
+
+Para la tienda: “Organiza tu inventario y deja que los motociclistas encuentren tus productos, conozcan su compatibilidad y ubiquen tu negocio”.
+
+La ventaja no debe basarse solo en tener una página web. Debe demostrarse con resultados concretos para cada tienda: productos encontrados, conversaciones recibidas, tiempo de respuesta y catálogo actualizado.
+
+
+6. MODELO DE COMERCIALIZACIÓN RECOMENDADO
+
+Recomendación inicial: servicio para negocios por suscripción (SaaS) más marketplace gratuito para el público.
+
+Etapa inicial — piloto local:
+- Seleccionar entre 5 y 10 tiendas de Trinidad con variedad de productos y disposición para actualizar existencias.
+- Incorporar sus catálogos con ayuda presencial o remota; tomar fotografías y completar marca, modelo, precio, stock y compatibilidad.
+- Invitar a motociclistas mediante los propios negocios, talleres, mecánicos, clubes, redes sociales y códigos QR impresos en mostradores o recibos.
+- Mantener el acceso del motociclista gratuito durante el piloto.
+- Probar la gestión de inventario y la publicación de productos con las tiendas sin exigir pago durante las primeras semanas.
+- Entrevistar a cada negocio para conocer cuánto tiempo ahorra, cuántas consultas recibe y qué funciones le resultan valiosas.
+
+Etapa de cobro — cuando se haya probado el valor:
+- Plan básico: perfil comercial y una cantidad limitada de productos publicados.
+- Plan tienda: catálogo más amplio, inventario, niveles mínimos, ubicación, estadísticas sencillas y atención prioritaria.
+- Plan multitienda o avanzado: más de una sucursal, usuarios del negocio, reportes y herramientas adicionales cuando estén implementadas.
+- Ofrecer una prueba de duración definida y explicar con claridad qué funciones pasan a ser pagadas.
+
+Los montos no se fijan en este informe porque deben validarse con los negocios locales. Presentar tres opciones de precio en entrevistas y preguntar cuál contratarían, qué dejarían de usar y qué resultado esperarían obtener. Medir también si pagan después del piloto; una respuesta positiva en una entrevista no sustituye una compra real.
+
+Ingresos que pueden evaluarse más adelante:
+- Publicaciones destacadas o promociones claramente identificadas.
+- Suscripciones con funciones avanzadas para tiendas.
+- Comisión por transacción solo si el sistema incorpora pedidos y puede verificar el pago y el resultado de la venta.
+
+No se recomienda comenzar cobrando una comisión por venta: hoy el sistema conecta a las partes, pero no procesa ni verifica la transacción.
+
+
+7. PLAN PRÁCTICO DE LANZAMIENTO
+
+Primeros 30 días — validar el problema:
+- Hablar con 10 a 15 tiendas, 20 a 30 motociclistas y varios mecánicos.
+- Preguntar cómo buscan repuestos actualmente, dónde registran stock, cuántas consultas reciben y qué les hace confiar en un vendedor.
+- Confirmar que el celular y la conexión a internet disponibles permiten usar la aplicación en el negocio.
+- Registrar objeciones y no asumir que las respuestas positivas equivalen a intención de pago.
+
+Días 31 a 60 — operar el piloto:
+- Activar entre 5 y 10 tiendas y cargar un catálogo representativo.
+- Acompañar a los vendedores para mantener los datos correctos.
+- Invitar a clientes desde los puntos de venta y medir búsquedas, filtros utilizados y conversaciones.
+- Corregir datos de compatibilidad confusos y problemas de uso encontrados en teléfonos reales.
+
+Días 61 a 90 — decidir el modelo:
+- Presentar los planes y precios candidatos a los negocios que sí utilizaron el sistema.
+- Pedir una contratación piloto pagada o una reserva real, además de opiniones.
+- Mantener, cambiar o detener la oferta según uso, renovación y costo de atender a cada tienda.
+- Expandir primero a más negocios de Beni si los indicadores del piloto son buenos; después evaluar otras ciudades.
+
+
+8. INDICADORES QUE CONVIENE MEDIR
+
+- Tiendas registradas y tiendas que actualizan productos cada semana.
+- Número de productos publicados y porcentaje con stock y compatibilidad completos.
+- Búsquedas de repuestos y consultas que terminan en conversación.
+- Tiempo que tarda el vendedor en responder.
+- Clientes que vuelven a usar el sistema durante el mes.
+- Porcentaje de tiendas piloto que contratan y renuevan un plan.
+- Tiempo y costo de incorporar y atender cada negocio.
+- Reportes de productos incorrectos, agotados o incompatibles.
+
+Una métrica clave para el piloto es que el catálogo tenga información confiable y genere contactos útiles, no solo acumular cuentas registradas.
+
+
+9. PROMOCIÓN Y VENTAS
+
+- Visitar tiendas de repuestos y mostrar una demostración en el celular del propio comerciante.
+- Preparar un catálogo de ejemplo con productos reales y datos de compatibilidad.
+- Colocar un código QR en el negocio para que el cliente pruebe la búsqueda.
+- Pedir a los primeros comerciantes que inviten a sus clientes y referencien otros negocios.
+- Compartir videos cortos que muestren un caso real: registrar una moto, buscar una pieza compatible y contactar a la tienda.
+- Usar redes sociales y mensajería como canales de difusión, sin anunciar integraciones que el producto todavía no tiene.
+- Ofrecer incorporación asistida al primer grupo de negocios y convertir sus resultados en testimonios verificables.
+
+
+10. OPORTUNIDAD DEL MERCADO Y PRÓXIMOS PASOS
+
+El INE publica estadísticas del parque automotor por departamento, municipio y clase de vehículo. Esa fuente permite estimar y actualizar el tamaño del público potencial, incluyendo el departamento del Beni; antes de presentar un número de mercado, se debe consultar la tabla vigente y distinguir el total de vehículos del total de motocicletas.
+
+El Banco Central de Bolivia reportó que, durante 2024, las transacciones con instrumentos electrónicos de pago superaron los mil millones y que los pagos inmediatos con QR representaron el 73 % de la cantidad de órdenes electrónicas de transferencia procesadas. Esto respalda evaluar pagos digitales locales en una etapa futura, pero no significa que TriniRepuesto ya acepte o verifique pagos QR.
+
+Pasos recomendados antes de escalar:
+- Revisar las cifras actualizadas del parque automotor y enfocar el análisis en motocicletas y Beni.
+- Verificar que la información del catálogo, las ubicaciones y las políticas de acceso a datos sean correctas.
+- Definir atención al cliente, términos de uso, privacidad, reglas para negocios y mecanismo de reporte de publicaciones.
+- Evaluar posteriormente pedidos, pagos QR y entregas con comerciantes y entidades pertinentes; implementarlos solo cuando exista demanda comprobada y un proceso claro de confirmación, cancelación y devolución.
+
+
+11. CONCLUSIÓN
+
+TriniRepuesto resuelve un problema práctico de búsqueda y organización: ayuda a conectar al motociclista que necesita una pieza con los negocios que pueden ofrecerla, y ofrece a esos negocios una herramienta básica de inventario y visibilidad.
+
+La mejor forma de comercializarlo al inicio es probarlo localmente, cobrar a las tiendas por herramientas y visibilidad una vez que se haya demostrado su utilidad y mantener gratuito el uso básico para los motociclistas. El crecimiento debe depender de uso repetido, catálogos confiables y comercios dispuestos a pagar y renovar, no solo de descargas o registros.
+
+
+FUENTES PÚBLICAS CONSULTADAS
+
+Instituto Nacional de Estadística (INE), Parque Automotor: cuadros por departamento, municipio y clase de vehículo.
+https://www.ine.gob.bo/index.php/estadisticas-economicas/transportes/parque-automotor-cuadros-estadisticos/
+
+Instituto Nacional de Estadística (INE), Boletín Estadístico Parque Automotor 2024, publicado el 28 de mayo de 2025.
+https://www.ine.gob.bo/index.php/publicaciones/boletin-estadistico-parque-automotor-2024/
+
+Banco Central de Bolivia (BCB), Sistema de Pagos 2024, publicado el 30 de junio de 2025.
+https://www.bcb.gob.bo/webdocs/publicacionesbcb/2025/06/30/SISTEMA%20DE%20PAGOS%202024.pdf
+
+
+Nota metodológica: La descripción de funciones se basa en el código y el README del proyecto revisados el 6 de noviembre de 2026. Las recomendaciones de comercialización son propuestas para validar con clientes; no constituyen una garantía de ventas ni un estudio de mercado cuantitativo.

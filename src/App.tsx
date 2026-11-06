@@ -32,15 +32,18 @@ function AppContent() {
 
   const showClient = profile.role === 'client';
   const showSeller = profile.role === 'seller';
+  const resolvedTab: DashTab = showSeller && activeTab === 'marketplace' ? 'my-parts' : activeTab;
 
   const renderTab = () => {
-    switch (activeTab) {
+    switch (resolvedTab) {
       case 'overview':
         return <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'motorcycles':
         return showClient ? <MotorcyclesView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'marketplace':
-        return <MarketplaceView onNavigate={(tab) => setActiveTab(tab as DashTab)} />;
+        return showClient
+          ? <MarketplaceView onNavigate={(tab) => setActiveTab(tab as DashTab)} />
+          : <MyPartsView />;
       case 'my-parts':
         return showSeller ? <MyPartsView /> : <Overview onNavigate={(t) => setActiveTab(t as DashTab)} />;
       case 'messages':
@@ -53,7 +56,7 @@ function AppContent() {
   };
 
   return (
-    <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
+    <DashboardLayout activeTab={resolvedTab} onTabChange={setActiveTab}>
       {renderTab()}
     </DashboardLayout>
   );

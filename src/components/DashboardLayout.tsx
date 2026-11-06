@@ -187,10 +187,12 @@ export default function DashboardLayout({
     navItems.push({ key: 'motorcycles', label: 'Mis motos', icon: Bike });
   }
 
-  navItems.push({ key: 'marketplace', label: 'Marketplace', icon: Store });
+  if (showClient) {
+    navItems.push({ key: 'marketplace', label: 'Marketplace', icon: Store });
+  }
 
   if (showSeller) {
-    navItems.push({ key: 'my-parts', label: 'Inventario', icon: Package });
+    navItems.push({ key: 'my-parts', label: 'Productos y ventas', icon: Package });
   }
 
   navItems.push({
