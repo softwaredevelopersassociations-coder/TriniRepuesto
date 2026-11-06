@@ -18,6 +18,7 @@ export default function MyPartsView() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<PartCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<PartStatus | 'all'>('all');
+  const [activeSection, setActiveSection] = useState<'products' | 'sales'>('products');
 
   const emptyForm = {
     sku: '',
@@ -248,15 +249,43 @@ export default function MyPartsView() {
     <div className="animate-fade-in">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Mi inventario</h1>
-          <p className="text-slate-400 text-sm">Controla existencias, costos y precios; publica cada repuesto cuando esté listo.</p>
+          <h1 className="text-2xl font-bold text-white mb-1">Productos y ventas</h1>
+          <p className="text-slate-400 text-sm">Administra tus productos. La sección de ventas se habilitará posteriormente.</p>
         </div>
-        <button onClick={openAdd} className="btn-primary">
-          <Plus className="w-4 h-4" />
-          Agregar producto
-        </button>
+        {activeSection === 'products' && (
+          <button onClick={openAdd} className="btn-primary">
+            <Plus className="w-4 h-4" />
+            Agregar producto
+          </button>
+        )}
       </div>
 
+      <nav className="mb-6 w-full max-w-lg rounded-xl border border-slate-800 bg-slate-900/70 p-1.5" aria-label="Secciones de productos y ventas">
+        <div className="mb-1 px-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Secciones del módulo</div>
+        <div className="grid grid-cols-2 gap-1" role="group" aria-label="Cambiar sección">
+          <button
+            type="button"
+            aria-pressed={activeSection === 'products'}
+            onClick={() => setActiveSection('products')}
+            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === 'products' ? 'bg-slate-800 text-orange-400 shadow-sm ring-1 ring-inset ring-orange-500/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
+          >
+            <Package className="h-4 w-4" />
+            Productos
+          </button>
+          <button
+            type="button"
+            aria-pressed={activeSection === 'sales'}
+            onClick={() => setActiveSection('sales')}
+            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === 'sales' ? 'bg-slate-800 text-orange-400 shadow-sm ring-1 ring-inset ring-orange-500/20' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
+          >
+            <DollarSign className="h-4 w-4" />
+            Ventas
+          </button>
+        </div>
+      </nav>
+
+      {activeSection === 'products' ? (
+        <section aria-label="Productos">
       {error && !showForm && <div role="alert" className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</div>}
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -349,9 +378,23 @@ export default function MyPartsView() {
         )}
         </>
       )}
+        </section>
+      ) : (
+        <section aria-labelledby="sales-section-title" className="card p-6 text-center sm:p-12">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10">
+            <DollarSign className="h-7 w-7 text-orange-400" />
+          </div>
+          <h2 id="sales-section-title" className="mb-2 text-lg font-semibold text-white">Ventas</h2>
+          <p className="mx-auto max-w-md text-sm text-slate-400">La gestión de ventas se habilitará posteriormente.</p>
+          <div className="mx-auto mt-6 max-w-md rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-5">
+            <p className="font-medium text-slate-300">Sección en preparación</p>
+            <p className="mt-1 text-sm text-slate-500">Los datos de ventas aparecerán aquí cuando se implemente su gestión.</p>
+          </div>
+        </section>
+      )}
 
       {/* Modal */}
-      {showForm && (
+      {activeSection === 'products' && showForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-3 py-4 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setShowForm(false)}>
           <div className="card my-auto max-h-[90dvh] w-full max-w-md animate-fade-in overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
