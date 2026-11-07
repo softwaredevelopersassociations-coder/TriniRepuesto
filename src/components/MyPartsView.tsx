@@ -6,6 +6,7 @@ import type { Part, PartCategory, PartCondition, PartStatus } from '@/types';
 import { PART_CATEGORIES, PART_CONDITIONS } from '@/lib/constants';
 import { Store, Plus, Trash2, X, Loader2, Pencil, Package, Upload, ImageIcon, Search, Filter, Boxes, Eye, EyeOff, CheckCircle2, TriangleAlert } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
+import SalesView from '@/components/SalesView';
 
 export default function MyPartsView() {
   const { profile } = useAuth();
@@ -383,17 +384,7 @@ export default function MyPartsView() {
       )}
         </section>
       ) : (
-        <section aria-labelledby="sales-section-title" className="card p-6 text-center sm:p-12">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10">
-            <span aria-hidden="true" className="text-lg font-bold text-orange-400">Bs</span>
-          </div>
-          <h2 id="sales-section-title" className="mb-2 text-lg font-semibold text-white">Ventas</h2>
-          <p className="mx-auto max-w-md text-sm text-slate-400">La gestión de ventas se habilitará posteriormente.</p>
-          <div className="mx-auto mt-6 max-w-md rounded-xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-5">
-            <p className="font-medium text-slate-300">Sección en preparación</p>
-            <p className="mt-1 text-sm text-slate-500">Los datos de ventas aparecerán aquí cuando se implemente su gestión.</p>
-          </div>
-        </section>
+        <SalesView />
       )}
 
       {/* Modal */}
