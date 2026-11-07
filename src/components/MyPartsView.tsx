@@ -384,7 +384,7 @@ export default function MyPartsView() {
       )}
         </section>
       ) : (
-        <SalesView />
+        <SalesView onSaleRegistered={load} />
       )}
 
       {/* Modal */}

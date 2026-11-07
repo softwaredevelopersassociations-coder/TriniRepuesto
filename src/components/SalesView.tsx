@@ -79,7 +79,7 @@ async function fetchAvailableProducts(sellerId: string): Promise<{ products: Sal
   return { products, error, stockLoaded: true };
 }
 
-export default function SalesView() {
+export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () => Promise<void> }) {
   const { profile } = useAuth();
   const [products, setProducts] = useState<SaleProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -356,6 +356,11 @@ export default function SalesView() {
       setCart({});
       setSaleSuccess('Venta registrada correctamente.');
       setReloadKey((current) => current + 1);
+      try {
+        await onSaleRegistered();
+      } catch {
+        setSaleError('La venta se registró, pero no se pudo actualizar la lista de productos.');
+      }
     } catch (registerError) {
       markCartAttention(null);
       setSaleError(registerError instanceof Error
