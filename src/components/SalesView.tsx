@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Boxes, Check, Filter, Loader2, Minus, Package, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
+import { Boxes, Check, Coins, Filter, Loader2, Minus, Package, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PART_CATEGORIES } from '@/lib/constants';
+import { formatCurrency } from '@/lib/currency';
 import type { Part, PartCategory } from '@/types';
 
 type CartLine = {
@@ -11,7 +12,7 @@ type CartLine = {
   attention?: string;
 };
 
-type SaleProduct = Pick<Part, 'id' | 'title' | 'description' | 'compatible_motorcycles' | 'category' | 'brand' | 'stock' | 'image_url'> & {
+type SaleProduct = Pick<Part, 'id' | 'title' | 'description' | 'compatible_motorcycles' | 'category' | 'brand' | 'stock' | 'image_url' | 'price'> & {
   sku?: string | null;
 };
 
@@ -19,6 +20,7 @@ type SaleHistoryItem = {
   part_id: string | null;
   product_title: string;
   quantity: number;
+  unit_price: number | null;
 };
 
 type SaleHistoryEntry = {
@@ -31,6 +33,8 @@ type ProductSalesTotal = {
   aggregation_key: string;
   product_title: string;
   quantity_sold: number;
+  total_amount: number;
+  has_unknown_price: boolean;
 };
 
 function localDateKey(dateTime: string) {
@@ -46,7 +50,7 @@ async function fetchAvailableProducts(sellerId: string): Promise<{ products: Sal
   const [partsResult, inventoryResult] = await Promise.all([
     supabase
       .from('parts')
-      .select('id,title,description,compatible_motorcycles,category,brand,stock,image_url')
+      .select('id,title,description,compatible_motorcycles,category,brand,stock,image_url,price')
       .eq('user_id', sellerId)
       .gt('stock', 0)
       .neq('status', 'sold')
@@ -163,7 +167,7 @@ export default function SalesView({
         const saleIds = sales.map((sale) => sale.id);
         const { data: items, error: itemsQueryError } = await supabase
           .from('sale_items')
-          .select('sale_id,part_id,product_title,quantity')
+          .select('sale_id,part_id,product_title,quantity,unit_price')
           .in('sale_id', saleIds);
 
         if (cancelled) return;
@@ -176,6 +180,7 @@ export default function SalesView({
             part_id: item.part_id,
             product_title: item.product_title,
             quantity: item.quantity,
+            unit_price: item.unit_price === null ? null : Number(item.unit_price),
           };
           saleItems.push(saleItem);
           itemsBySale.set(item.sale_id, saleItems);
@@ -239,6 +244,8 @@ export default function SalesView({
         aggregation_key: aggregationKey,
         product_title: previousTotal?.product_title ?? item.product_title,
         quantity_sold: (previousTotal?.quantity_sold ?? 0) + item.quantity,
+        total_amount: (previousTotal?.total_amount ?? 0) + (item.unit_price ?? 0) * item.quantity,
+        has_unknown_price: (previousTotal?.has_unknown_price ?? false) || item.unit_price === null,
       });
     });
   });
@@ -256,19 +263,29 @@ export default function SalesView({
         aggregation_key: aggregationKey,
         product_title: previousTotal?.product_title ?? item.product_title,
         quantity_sold: (previousTotal?.quantity_sold ?? 0) + item.quantity,
+        total_amount: (previousTotal?.total_amount ?? 0) + (item.unit_price ?? 0) * item.quantity,
+        has_unknown_price: (previousTotal?.has_unknown_price ?? false) || item.unit_price === null,
       });
     });
   });
-  const soldUnitsByProductId = new Map(
+  const salesTotalsByPartId = new Map(
     [...allTimeTotalsByProduct.values()]
       .filter((total) => total.aggregation_key.startsWith('part:'))
-      .map((total) => [total.aggregation_key.slice('part:'.length), total.quantity_sold]),
+      .map((total) => [total.aggregation_key.slice('part:'.length), total]),
   );
   const totalAvailableUnits = products.reduce((total, product) => total + product.stock, 0);
   const totalSoldUnits = salesHistory.reduce(
     (total, sale) => total + sale.items.reduce((saleTotal, item) => saleTotal + item.quantity, 0),
     0,
   );
+  const totalSalesAmount = salesHistory.reduce(
+    (total, sale) => total + sale.items.reduce(
+      (saleTotal, item) => saleTotal + (item.unit_price ?? 0) * item.quantity,
+      0,
+    ),
+    0,
+  );
+  const hasSalesWithoutPrice = salesHistory.some((sale) => sale.items.some((item) => item.unit_price === null));
 
   const addToCart = (product: SaleProduct) => {
     setSaleError(null);
@@ -423,9 +440,12 @@ export default function SalesView({
           <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
             <SalesMetric icon={Boxes} label="Productos disponibles" value={String(products.length)} />
             <SalesMetric icon={Package} label="Unidades disponibles" value={String(totalAvailableUnits)} />
-            <SalesMetric icon={Check} label="Ventas registradas" value={historyLoading || historyError ? '—' : String(salesHistory.length)} />
             <SalesMetric icon={ShoppingCart} label="Unidades vendidas" value={historyLoading || historyError ? '—' : String(totalSoldUnits)} />
+            <SalesMetric icon={Coins} label="Total vendido" value={historyLoading || historyError ? '—' : formatCurrency(totalSalesAmount)} />
           </div>
+          {!historyLoading && !historyError && hasSalesWithoutPrice && (
+            <p className="-mt-3 mb-5 text-xs text-slate-500">El total suma los precios guardados. Las ventas anteriores sin precio aparecen como “No registrado”.</p>
+          )}
 
           <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,0.75fr)]">
             <div>
@@ -489,13 +509,25 @@ export default function SalesView({
                             </div>
                             <div className="p-4">
                               <h3 className="truncate font-semibold text-white">{product.title}</h3>
+                              <div className="mt-2 flex items-center justify-between gap-2 text-sm">
+                                <span className="text-slate-400">Precio</span>
+                                <span className="font-semibold text-green-400">{formatCurrency(product.price)}</span>
+                              </div>
                               <div className="mt-3 flex items-center justify-between gap-2 text-xs">
                                 <span className="text-slate-400">Stock disponible</span>
                                 <span className="font-medium text-white">{product.stock}</span>
                               </div>
                               <div className="mt-1 flex items-center justify-between gap-2 text-xs">
                                 <span className="text-slate-400">Unidades vendidas</span>
-                                <span className="font-medium text-green-400">{soldUnitsByProductId.get(product.id) ?? 0}</span>
+                                <span className="font-medium text-green-400">
+                                  {historyLoading || historyError ? '—' : salesTotalsByPartId.get(product.id)?.quantity_sold ?? 0}
+                                </span>
+                              </div>
+                              <div className="mt-1 flex items-center justify-between gap-2 text-xs">
+                                <span className="text-slate-400">Total vendido</span>
+                                <span className="font-medium text-green-400">
+                                  {productSalesTotalLabel(salesTotalsByPartId.get(product.id), historyLoading, historyError)}
+                                </span>
                               </div>
                               <button
                                 type="button"
@@ -549,6 +581,7 @@ export default function SalesView({
                             <div className="min-w-0 flex-1">
                               <p className="truncate font-medium text-white">{product.title}</p>
                               <p className="mt-1 text-xs text-slate-400">Stock disponible: {product.stock}</p>
+                              <p className="mt-1 text-xs text-slate-400">Precio: <span className="text-slate-200">{formatCurrency(product.price)}</span></p>
                             </div>
                             <button
                               type="button"
@@ -606,6 +639,12 @@ export default function SalesView({
                               </button>
                             </div>
                           </div>
+                          <div className="mt-3 flex items-center justify-between border-t border-slate-800 pt-3 text-sm">
+                            <span className="text-slate-400">Subtotal</span>
+                            <span className="font-semibold text-green-400">
+                              {formatCurrency(product.price * (Number.isInteger(numericQuantity) && numericQuantity > 0 ? numericQuantity : 0))}
+                            </span>
+                          </div>
                           {lineError && (
                             <p id={`${quantityInputId}-error`} role="alert" className="mt-2 text-xs text-red-400">
                               {lineError}
@@ -615,6 +654,18 @@ export default function SalesView({
                       );
                     })}
                   </ul>
+                )}
+
+                {cartProducts.length > 0 && (
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-700 pt-4">
+                    <span className="font-semibold text-white">Total de la venta</span>
+                    <span className="text-lg font-bold text-green-400">
+                      {formatCurrency(cartProducts.reduce((total, line) => {
+                        const quantity = Number(line.quantity);
+                        return total + line.product.price * (Number.isInteger(quantity) && quantity > 0 ? quantity : 0);
+                      }, 0))}
+                    </span>
+                  </div>
                 )}
 
                 <button
@@ -681,7 +732,16 @@ export default function SalesView({
                   {filteredProductSalesTotals.map((total) => (
                     <div key={total.aggregation_key} className="flex items-center justify-between gap-3 py-3 text-sm">
                       <span className="min-w-0 truncate text-slate-300">{total.product_title}</span>
-                      <span className="shrink-0 font-medium text-green-400">{total.quantity_sold} unidades</span>
+                      <span className="shrink-0 text-right">
+                        <span className="block text-slate-300">{total.quantity_sold} unidades</span>
+                        <span className="block text-xs font-medium text-green-400">
+                          {total.has_unknown_price
+                            ? total.total_amount > 0
+                              ? `Parcial: ${formatCurrency(total.total_amount)}`
+                              : 'Precio no registrado'
+                            : formatCurrency(total.total_amount)}
+                        </span>
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -700,14 +760,24 @@ export default function SalesView({
               <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 {filteredSalesHistory.map((sale) => (
                   <article key={sale.id} className="card p-4">
-                    <time dateTime={sale.created_at} className="mb-3 block text-xs text-slate-500">
-                      {new Date(sale.created_at).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' })}
-                    </time>
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <time dateTime={sale.created_at} className="text-xs text-slate-500">
+                        {new Date(sale.created_at).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' })}
+                      </time>
+                      <span className="shrink-0 text-right text-sm font-semibold text-green-400">{saleTotalLabel(sale.items)}</span>
+                    </div>
                     <ul className="space-y-2">
                       {sale.items.map((item, index) => (
-                        <li key={`${sale.id}-${index}`} className="flex items-center justify-between gap-3 text-sm">
-                          <span className="min-w-0 truncate text-slate-300">{item.product_title}</span>
-                          <span className="shrink-0 text-slate-400">Cantidad: {item.quantity}</span>
+                        <li key={`${sale.id}-${index}`} className="flex items-center justify-between gap-3 border-t border-slate-800 pt-2 text-sm">
+                          <div className="min-w-0">
+                            <p className="truncate text-slate-300">{item.product_title}</p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {item.quantity} × {item.unit_price === null ? 'Precio no registrado' : formatCurrency(item.unit_price)}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-slate-200">
+                            {item.unit_price === null ? '—' : formatCurrency(item.unit_price * item.quantity)}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -732,4 +802,23 @@ function SalesMetric({ icon: Icon, label, value }: { icon: typeof Boxes; label: 
       <p className="truncate text-lg font-bold text-white sm:text-xl">{value}</p>
     </div>
   );
+}
+
+function saleTotalLabel(items: SaleHistoryItem[]) {
+  const pricedItems = items.filter((item) => item.unit_price !== null);
+  if (pricedItems.length === 0) return 'Total no disponible';
+
+  const total = pricedItems.reduce((amount, item) => amount + (item.unit_price ?? 0) * item.quantity, 0);
+  return pricedItems.length < items.length
+    ? `Total parcial: ${formatCurrency(total)}`
+    : `Total: ${formatCurrency(total)}`;
+}
+
+function productSalesTotalLabel(total: ProductSalesTotal | undefined, loading: boolean, error: string | null) {
+  if (loading || error) return '—';
+  if (!total) return formatCurrency(0);
+  if (total.has_unknown_price) {
+    return total.total_amount > 0 ? `Parcial: ${formatCurrency(total.total_amount)}` : 'Precio no registrado';
+  }
+  return formatCurrency(total.total_amount);
 }
