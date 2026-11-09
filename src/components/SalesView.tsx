@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Boxes, Check, Filter, Loader2, Minus, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
+import { Boxes, Check, Filter, Loader2, Minus, Package, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PART_CATEGORIES } from '@/lib/constants';
@@ -11,12 +11,12 @@ type CartLine = {
   attention?: string;
 };
 
-type SaleProduct = Pick<Part, 'id' | 'title' | 'description' | 'compatible_motorcycles' | 'category' | 'brand' | 'stock'> & {
+type SaleProduct = Pick<Part, 'id' | 'title' | 'description' | 'compatible_motorcycles' | 'category' | 'brand' | 'stock' | 'image_url'> & {
   sku?: string | null;
 };
 
 type SaleHistoryItem = {
-  part_id: string;
+  part_id: string | null;
   product_title: string;
   quantity: number;
 };
@@ -28,7 +28,7 @@ type SaleHistoryEntry = {
 };
 
 type ProductSalesTotal = {
-  part_id: string;
+  aggregation_key: string;
   product_title: string;
   quantity_sold: number;
 };
@@ -46,7 +46,7 @@ async function fetchAvailableProducts(sellerId: string): Promise<{ products: Sal
   const [partsResult, inventoryResult] = await Promise.all([
     supabase
       .from('parts')
-      .select('id,title,description,compatible_motorcycles,category,brand,stock')
+      .select('id,title,description,compatible_motorcycles,category,brand,stock,image_url')
       .eq('user_id', sellerId)
       .gt('stock', 0)
       .neq('status', 'sold')
@@ -79,7 +79,13 @@ async function fetchAvailableProducts(sellerId: string): Promise<{ products: Sal
   return { products, error, stockLoaded: true };
 }
 
-export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () => Promise<void> }) {
+export default function SalesView({
+  onSaleRegistered,
+  onShowProducts,
+}: {
+  onSaleRegistered: () => Promise<void>;
+  onShowProducts: () => void;
+}) {
   const { profile } = useAuth();
   const [products, setProducts] = useState<SaleProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -226,16 +232,42 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
   const filteredTotalsByProduct = new Map<string, ProductSalesTotal>();
   filteredSalesHistory.forEach((sale) => {
     sale.items.forEach((item) => {
-      const previousTotal = filteredTotalsByProduct.get(item.part_id);
-      filteredTotalsByProduct.set(item.part_id, {
-        part_id: item.part_id,
-        product_title: item.product_title,
+      const titleKey = item.product_title.trim().toLocaleLowerCase();
+      const aggregationKey = item.part_id ? `part:${item.part_id}` : `deleted:${titleKey}`;
+      const previousTotal = filteredTotalsByProduct.get(aggregationKey);
+      filteredTotalsByProduct.set(aggregationKey, {
+        aggregation_key: aggregationKey,
+        product_title: previousTotal?.product_title ?? item.product_title,
         quantity_sold: (previousTotal?.quantity_sold ?? 0) + item.quantity,
       });
     });
   });
   const filteredProductSalesTotals = [...filteredTotalsByProduct.values()].sort((first, second) =>
     first.product_title.localeCompare(second.product_title, 'es'),
+  );
+
+  const allTimeTotalsByProduct = new Map<string, ProductSalesTotal>();
+  salesHistory.forEach((sale) => {
+    sale.items.forEach((item) => {
+      const titleKey = item.product_title.trim().toLocaleLowerCase();
+      const aggregationKey = item.part_id ? `part:${item.part_id}` : `deleted:${titleKey}`;
+      const previousTotal = allTimeTotalsByProduct.get(aggregationKey);
+      allTimeTotalsByProduct.set(aggregationKey, {
+        aggregation_key: aggregationKey,
+        product_title: previousTotal?.product_title ?? item.product_title,
+        quantity_sold: (previousTotal?.quantity_sold ?? 0) + item.quantity,
+      });
+    });
+  });
+  const soldUnitsByProductId = new Map(
+    [...allTimeTotalsByProduct.values()]
+      .filter((total) => total.aggregation_key.startsWith('part:'))
+      .map((total) => [total.aggregation_key.slice('part:'.length), total.quantity_sold]),
+  );
+  const totalAvailableUnits = products.reduce((total, product) => total + product.stock, 0);
+  const totalSoldUnits = salesHistory.reduce(
+    (total, sale) => total + sale.items.reduce((saleTotal, item) => saleTotal + item.quantity, 0),
+    0,
   );
 
   const addToCart = (product: SaleProduct) => {
@@ -376,8 +408,8 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
   return (
     <section aria-labelledby="sales-section-title">
       <div className="mb-5">
-        <h2 id="sales-section-title" className="text-lg font-semibold text-white">Productos disponibles</h2>
-        <p className="mt-1 text-sm text-slate-400">Productos propios con unidades disponibles. Los que están en inventario también se incluyen.</p>
+        <h2 id="sales-section-title" className="text-lg font-semibold text-white">Ventas</h2>
+        <p className="mt-1 text-sm text-slate-400">Registra las cantidades vendidas y consulta tus totales por producto.</p>
       </div>
 
       {loading ? (
@@ -388,13 +420,24 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
         <>
           {error && <div role="alert" className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</div>}
 
+          <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+            <SalesMetric icon={Boxes} label="Productos disponibles" value={String(products.length)} />
+            <SalesMetric icon={Package} label="Unidades disponibles" value={String(totalAvailableUnits)} />
+            <SalesMetric icon={Check} label="Ventas registradas" value={historyLoading || historyError ? '—' : String(salesHistory.length)} />
+            <SalesMetric icon={ShoppingCart} label="Unidades vendidas" value={historyLoading || historyError ? '—' : String(totalSoldUnits)} />
+          </div>
+
           <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,0.75fr)]">
             <div>
               {products.length === 0 ? (
-                <div className="card p-6 text-center sm:p-12">
+                <div className="card flex min-h-64 flex-col items-center justify-center p-6 text-center sm:p-8">
                   <Boxes className="mx-auto mb-4 h-12 w-12 text-slate-600" />
-                  <p className="mb-4 text-slate-400">No hay productos con stock disponible</p>
-                  <p className="text-sm text-slate-500">Los productos en inventario también aparecerán aquí cuando tengan stock.</p>
+                  <h3 className="mb-2 font-semibold text-white">No hay productos disponibles para vender</h3>
+                  <p className="mb-5 max-w-sm text-sm text-slate-400">Agrega unidades desde Productos y aparecerán aquí para registrar sus ventas.</p>
+                  <button type="button" onClick={onShowProducts} className="btn-secondary justify-center">
+                    <Package className="h-4 w-4" />
+                    Ir a Productos
+                  </button>
                 </div>
               ) : (
                 <>
@@ -431,24 +474,39 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
                       <p className="text-sm text-slate-400">No hay productos que coincidan con la búsqueda y la categoría.</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
                       {filteredProducts.map((product) => {
                         const inCart = Object.prototype.hasOwnProperty.call(cart, product.id);
                         return (
-                          <article key={product.id} className="card p-4 transition hover:border-slate-700">
-                            <div className="flex min-w-0 items-start justify-between gap-3">
-                              <h3 className="min-w-0 flex-1 truncate font-semibold text-white">{product.title}</h3>
-                              <span className="shrink-0 text-sm text-slate-400">Stock disponible: <span className="font-medium text-white">{product.stock}</span></span>
+                          <article key={product.id} className="card group overflow-hidden transition hover:border-slate-700">
+                            <div className="relative flex h-32 items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+                              {product.image_url ? (
+                                <img src={product.image_url} alt={product.title} className="h-full w-full object-cover" />
+                              ) : (
+                                <Package className="h-10 w-10 text-slate-600" />
+                              )}
+                              <span className="badge absolute left-2 top-2 bg-cyan-500/10 text-cyan-300">{PART_CATEGORIES[product.category]}</span>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => addToCart(product)}
-                              disabled={inCart || saving}
-                              className="btn-secondary mt-3 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-                              {inCart ? 'En el carrito' : 'Agregar al carrito'}
-                            </button>
+                            <div className="p-4">
+                              <h3 className="truncate font-semibold text-white">{product.title}</h3>
+                              <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+                                <span className="text-slate-400">Stock disponible</span>
+                                <span className="font-medium text-white">{product.stock}</span>
+                              </div>
+                              <div className="mt-1 flex items-center justify-between gap-2 text-xs">
+                                <span className="text-slate-400">Unidades vendidas</span>
+                                <span className="font-medium text-green-400">{soldUnitsByProductId.get(product.id) ?? 0}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => addToCart(product)}
+                                disabled={inCart || saving}
+                                className="btn-secondary mt-4 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+                                {inCart ? 'En el carrito' : 'Agregar al carrito'}
+                              </button>
+                            </div>
                           </article>
                         );
                       })}
@@ -458,7 +516,7 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
               )}
             </div>
 
-            <aside aria-labelledby="sales-cart-title" className="card p-4 sm:p-5">
+            <aside aria-labelledby="sales-cart-title" className="card p-4 xl:sticky xl:top-4 xl:p-5">
               <div className="mb-4 flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-orange-400" />
                 <h3 id="sales-cart-title" className="text-base font-semibold text-white">Carrito de venta</h3>
@@ -621,9 +679,9 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
                 </h4>
                 <div className="card divide-y divide-slate-800 px-4">
                   {filteredProductSalesTotals.map((total) => (
-                    <div key={total.part_id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                    <div key={total.aggregation_key} className="flex items-center justify-between gap-3 py-3 text-sm">
                       <span className="min-w-0 truncate text-slate-300">{total.product_title}</span>
-                      <span className="shrink-0 text-slate-400">Cantidad total: {total.quantity_sold}</span>
+                      <span className="shrink-0 font-medium text-green-400">{total.quantity_sold} unidades</span>
                     </div>
                   ))}
                 </div>
@@ -661,5 +719,17 @@ export default function SalesView({ onSaleRegistered }: { onSaleRegistered: () =
         </>
       )}
     </section>
+  );
+}
+
+function SalesMetric({ icon: Icon, label, value }: { icon: typeof Boxes; label: string; value: string }) {
+  return (
+    <div className="card min-w-0 p-3 sm:p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <Icon className="h-4 w-4 shrink-0 text-orange-400" />
+        <span className="truncate text-xs text-slate-400">{label}</span>
+      </div>
+      <p className="truncate text-lg font-bold text-white sm:text-xl">{value}</p>
+    </div>
   );
 }

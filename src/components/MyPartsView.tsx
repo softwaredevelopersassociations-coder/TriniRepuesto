@@ -252,7 +252,11 @@ export default function MyPartsView() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Productos y ventas</h1>
-          <p className="text-slate-400 text-sm">Administra tus productos. La sección de ventas se habilitará posteriormente.</p>
+          <p className="text-slate-400 text-sm">
+            {activeSection === 'products'
+              ? 'Administra tus productos y consulta sus existencias.'
+              : 'Registra las cantidades vendidas y consulta tus totales por producto.'}
+          </p>
         </div>
         {activeSection === 'products' && (
           <button onClick={openAdd} className="btn-primary">
@@ -384,7 +388,7 @@ export default function MyPartsView() {
       )}
         </section>
       ) : (
-        <SalesView onSaleRegistered={load} />
+        <SalesView onSaleRegistered={load} onShowProducts={() => setActiveSection('products')} />
       )}
 
       {/* Modal */}
