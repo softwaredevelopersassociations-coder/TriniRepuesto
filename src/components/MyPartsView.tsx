@@ -249,26 +249,28 @@ export default function MyPartsView() {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Productos y ventas</h1>
-          <p className="text-slate-400 text-sm">
-            {activeSection === 'products'
-              ? 'Administra tus productos y consulta sus existencias.'
-              : 'Registra las cantidades vendidas y consulta tus totales por producto.'}
-          </p>
-        </div>
-        {activeSection === 'products' && (
-          <button onClick={openAdd} className="btn-primary">
-            <Plus className="w-4 h-4" />
-            Publicar producto
-          </button>
-        )}
-      </div>
+      <div className={`mb-6 grid grid-cols-1 gap-6 lg:items-start ${activeSection === 'sales' ? 'lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.75fr)]' : ''}`}>
+        <div className="min-w-0">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="mb-1 text-2xl font-bold text-white">Productos y ventas</h1>
+              <p className="text-sm text-slate-400">
+                {activeSection === 'products'
+                  ? 'Administra tus productos y consulta sus existencias.'
+                  : 'Registra las cantidades vendidas y consulta tus totales por producto.'}
+              </p>
+            </div>
+            {activeSection === 'products' && (
+              <button onClick={openAdd} className="btn-primary">
+                <Plus className="h-4 w-4" />
+                Publicar producto
+              </button>
+            )}
+          </div>
 
-      <nav className="mb-6 w-full max-w-lg rounded-xl border border-slate-800 bg-slate-900/70 p-1.5" aria-label="Secciones de productos y ventas">
-        <div className="mb-1 px-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Secciones del módulo</div>
-        <div className="grid grid-cols-2 gap-1" role="group" aria-label="Cambiar sección">
+          <nav className="mb-0 w-full max-w-lg rounded-xl border border-slate-800 bg-slate-900/70 p-1.5" aria-label="Secciones de productos y ventas">
+            <div className="mb-1 px-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Secciones del módulo</div>
+            <div className="grid grid-cols-2 gap-1" role="group" aria-label="Cambiar sección">
           <button
             type="button"
             aria-pressed={activeSection === 'products'}
@@ -287,8 +289,11 @@ export default function MyPartsView() {
             <span aria-hidden="true" className="inline-flex h-5 min-w-7 items-center justify-center rounded bg-slate-700/70 px-1 text-[10px] font-bold text-current">Bs</span>
             Ventas
           </button>
+            </div>
+          </nav>
         </div>
-      </nav>
+        {activeSection === 'sales' && <div id="sales-details-portal" className="min-w-0" />}
+      </div>
 
       {activeSection === 'products' ? (
         <section aria-label="Productos">
