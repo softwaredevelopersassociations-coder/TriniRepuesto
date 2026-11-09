@@ -22,7 +22,7 @@ export default function SellerRatingDisplay({ avgRating, totalRatings, size = 's
         <Star
           key={star}
           style={{ width: starSize, height: starSize }}
-          className={star <= Math.round(avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}
+          className={star <= Math.round(avgRating) ? 'text-orange-400 fill-orange-400' : 'text-slate-300'}
         />
       ))}
       <span className={`${size === 'sm' ? 'text-xs' : 'text-sm'} text-slate-400 ml-0.5`}>

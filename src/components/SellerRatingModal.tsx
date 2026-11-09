@@ -61,19 +61,22 @@ export default function SellerRatingModal({ sellerId, sellerName, partId, partTi
         <p className="mb-1 break-words text-sm text-slate-400">Vendedor: <span className="font-medium text-slate-200">{sellerName}</span></p>
         <p className="mb-5 break-words text-xs text-slate-500">Repuesto: {partTitle}</p>
 
-        {/* Stars */}
-        <div className="flex items-center gap-2 mb-4">
+        <p className="mb-2 text-sm font-medium text-slate-300">Tu calificación</p>
+        <div role="group" aria-label="Calificación del vendedor" className="mb-4 flex flex-wrap items-center gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
+              type="button"
+              aria-label={`Calificar con ${star} ${star === 1 ? 'estrella' : 'estrellas'}`}
+              aria-pressed={rating === star}
               onMouseEnter={() => setHovered(star)}
               onMouseLeave={() => setHovered(0)}
               onClick={() => setRating(star)}
-              className="transition-transform hover:scale-110"
+              className="rounded-sm transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
             >
               <Star
-                className={`w-8 h-8 transition-colors ${
-                  star <= (hovered || rating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'
+                className={`h-8 w-8 transition-colors ${
+                  star <= (hovered || rating) ? 'fill-orange-400 text-orange-400' : 'text-slate-300'
                 }`}
               />
             </button>

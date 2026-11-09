@@ -447,7 +447,7 @@ export default function SalesView({
             <p className="-mt-3 mb-5 text-xs text-slate-500">El total suma los precios guardados. Las ventas anteriores sin precio aparecen como “No registrado”.</p>
           )}
 
-          <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,0.75fr)]">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.75fr)]">
             <div>
               {products.length === 0 ? (
                 <div className="card flex min-h-64 flex-col items-center justify-center p-6 text-center sm:p-8">
@@ -548,7 +548,7 @@ export default function SalesView({
               )}
             </div>
 
-            <aside aria-labelledby="sale-details-title" className="card p-4 xl:sticky xl:top-4 xl:p-5">
+            <aside aria-labelledby="sale-details-title" className="card p-4 lg:sticky lg:top-4 lg:p-5">
               <div className="mb-4 flex items-center gap-2">
                 <ClipboardList className="h-5 w-5 text-orange-400" />
                 <h3 id="sale-details-title" className="text-base font-semibold text-white">Detalle de la venta</h3>
