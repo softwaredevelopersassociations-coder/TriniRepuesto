@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Boxes, Check, Coins, Filter, Loader2, Minus, Package, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
+import { Boxes, Check, ClipboardList, Coins, Filter, Loader2, Minus, Package, Plus, Search, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PART_CATEGORIES } from '@/lib/constants';
@@ -440,7 +440,7 @@ export default function SalesView({
           <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
             <SalesMetric icon={Boxes} label="Productos disponibles" value={String(products.length)} />
             <SalesMetric icon={Package} label="Unidades disponibles" value={String(totalAvailableUnits)} />
-            <SalesMetric icon={ShoppingCart} label="Unidades vendidas" value={historyLoading || historyError ? '—' : String(totalSoldUnits)} />
+            <SalesMetric icon={Check} label="Unidades vendidas" value={historyLoading || historyError ? '—' : String(totalSoldUnits)} />
             <SalesMetric icon={Coins} label="Total vendido" value={historyLoading || historyError ? '—' : formatCurrency(totalSalesAmount)} />
           </div>
           {!historyLoading && !historyError && hasSalesWithoutPrice && (
@@ -535,8 +535,8 @@ export default function SalesView({
                                 disabled={inCart || saving}
                                 className="btn-secondary mt-4 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-                                {inCart ? 'En el carrito' : 'Agregar al carrito'}
+                                {inCart ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                {inCart ? 'Agregado' : 'Agregar a la venta'}
                               </button>
                             </div>
                           </article>
@@ -548,10 +548,10 @@ export default function SalesView({
               )}
             </div>
 
-            <aside aria-labelledby="sales-cart-title" className="card p-4 xl:sticky xl:top-4 xl:p-5">
+            <aside aria-labelledby="sale-details-title" className="card p-4 xl:sticky xl:top-4 xl:p-5">
               <div className="mb-4 flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-orange-400" />
-                <h3 id="sales-cart-title" className="text-base font-semibold text-white">Carrito de venta</h3>
+                <ClipboardList className="h-5 w-5 text-orange-400" />
+                <h3 id="sale-details-title" className="text-base font-semibold text-white">Detalle de la venta</h3>
               </div>
 
               {saleError && <p role="alert" className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{saleError}</p>}
@@ -560,7 +560,7 @@ export default function SalesView({
               <form onSubmit={handleRegisterSale}>
                 {cartProducts.length === 0 ? (
                   <p className="rounded-lg border border-dashed border-slate-700 px-4 py-6 text-center text-sm text-slate-500">
-                    Agrega productos para preparar la venta.
+                    Selecciona los productos y cantidades que vas a registrar.
                   </p>
                 ) : (
                   <ul className="space-y-3">
@@ -596,8 +596,8 @@ export default function SalesView({
                               }}
                               disabled={saving}
                               className="rounded-md p-1.5 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
-                              aria-label={`Quitar ${product.title} del carrito`}
-                              title="Quitar del carrito"
+                              aria-label={`Quitar ${product.title} de la venta`}
+                              title="Quitar producto de la venta"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
